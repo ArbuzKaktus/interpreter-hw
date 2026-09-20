@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <unoredered_map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -229,6 +230,8 @@ std::vector<std::int64_t> ParseInput(const std::string& text) {
   return values;
 }
 
+enum ExitCodes { SUCCESS, FAIL };
+
 int main(int argc, char* argv[]) {
   try {
     std::string ast_path;
@@ -237,7 +240,7 @@ int main(int argc, char* argv[]) {
       const std::string argument = argv[index];
       if (argument == "--help") {
         std::cout << "Usage: interpreter [ast.json] [--input 1,2,3]\n";
-        return 0;
+        return ExitCodes::SUCCESS;
       }
       if (argument == "--input") {
         if (++index == argc) {
@@ -264,6 +267,6 @@ int main(int argc, char* argv[]) {
     Interpreter(std::move(input)).Run(program);
   } catch (const std::exception& error) {
     std::cerr << "Error: " << error.what() << '\n';
-    return 1;
+    return ExitCodes::ERROR;
   }
 }

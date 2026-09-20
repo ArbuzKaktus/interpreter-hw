@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <unoredered_map>
+#include <unordered_map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -267,6 +267,6 @@ int main(int argc, char* argv[]) {
     Interpreter(std::move(input)).Run(program);
   } catch (const std::exception& error) {
     std::cerr << "Error: " << error.what() << '\n';
-    return ExitCodes::ERROR;
+    return ExitCodes::FAIL;
   }
 }

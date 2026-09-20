@@ -1,0 +1,26 @@
+{
+  "seq": {
+    "left": { "read": "n" },
+    "right": {
+      "seq": {
+        "left": { "if": { "cond": { "binop": ">", "left": { "var": "n" }, "right": { "const": 0 } }, "then": { "write": { "const": 111 } }, "else": { "write": { "const": 222 } } } },
+        "right": {
+          "seq": {
+            "left": { "assn": { "dst": "x", "src": { "var": "n" } } },
+            "right": {
+              "seq": {
+                "left": { "do": { "body": { "seq": { "left": { "write": { "var": "x" } }, "right": { "assn": { "dst": "x", "src": { "binop": "-", "left": { "var": "x" }, "right": { "const": 1 } } } } } }, "cond": { "binop": ">", "left": { "var": "x" }, "right": { "const": 0 } } } },
+                "right": {
+                  "seq": {
+                    "left": { "assn": { "dst": "sum", "src": { "const": 0 } } },
+                    "right": { "seq": { "left": { "assn": { "dst": "i", "src": { "const": 1 } } }, "right": { "seq": { "left": { "while": { "cond": { "binop": "<=", "left": { "var": "i" }, "right": { "const": 3 } }, "body": { "seq": { "left": { "assn": { "dst": "sum", "src": { "binop": "+", "left": { "var": "sum" }, "right": { "var": "i" } } } }, "right": { "assn": { "dst": "i", "src": { "binop": "+", "left": { "var": "i" }, "right": { "const": 1 } } } } } } } }, "right": { "write": { "var": "sum" } } } } } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

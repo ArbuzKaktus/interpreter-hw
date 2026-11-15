@@ -80,7 +80,8 @@ std::vector<std::int64_t> ParseInput(const std::string& text, bool sm) {
     }
     if (sm && (value < std::numeric_limits<std::int32_t>::min() ||
                value > std::numeric_limits<std::int32_t>::max())) {
-      throw std::runtime_error("input value is outside the signed 32-bit range");
+      throw std::runtime_error(
+          "input value is outside the signed 32-bit range");
     }
     values.push_back(value);
   }
@@ -136,7 +137,8 @@ int main(int argc, char* argv[]) {
     const bool is_sm = sm || json.is_array();
     if (emit_sm) {
       if (is_sm || dump_ir) {
-        throw std::runtime_error("--emit-sm requires AST input and no --dump-ir");
+        throw std::runtime_error(
+            "--emit-sm requires AST input and no --dump-ir");
       }
       std::cout << WriteSm(CompileAst(json, AstTarget::kStackMachine)).dump(2)
                 << '\n';

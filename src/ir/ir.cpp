@@ -76,9 +76,10 @@ class Printer {
   void operator()(const Enter&) const { output_ << "enter"; }
   void operator()(const Leave&) const { output_ << "leave"; }
   void operator()(const MatchFailure&) const { output_ << "match_failure"; }
+  void operator()(const Dup&) const { output_ << "dup"; }
+  void operator()(const Drop&) const { output_ << "drop"; }
   void operator()(const PatternTest& op) const {
-    constexpr const char* kKinds[] = {"int", "string", "array", "sexp", "tag"};
-    output_ << "patt " << kKinds[static_cast<std::size_t>(op.kind)];
+    output_ << "patt " << PatternName(op.kind);
     if (op.kind == PatternKind::kTag) {
       output_ << ' ' << std::quoted(op.tag) << ' ' << op.arity;
     }
@@ -104,6 +105,21 @@ std::optional<BinaryOp> FindBinaryOp(std::string_view symbol) {
 bool IsArithmetic(BinaryOp op) { return Describe(op).arithmetic; }
 bool IsComparison(BinaryOp op) {
   return !IsArithmetic(op) && op != BinaryOp::kAnd && op != BinaryOp::kOr;
+}
+
+constexpr std::string_view kPatternNames[] = {
+    "int", "string", "array", "sexp", "tag"};
+
+std::string_view PatternName(PatternKind kind) {
+  return kPatternNames[static_cast<std::size_t>(kind)];
+}
+
+std::optional<PatternKind> FindPatternKind(std::string_view name) {
+  for (const auto kind : {PatternKind::kInt, PatternKind::kString,
+                          PatternKind::kArray, PatternKind::kSexp}) {
+    if (PatternName(kind) == name) return kind;
+  }
+  return std::nullopt;
 }
 
 void Dump(const Program& program, std::ostream& output) {

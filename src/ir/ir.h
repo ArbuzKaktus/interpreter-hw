@@ -42,7 +42,11 @@ struct Scope {};
 struct Enter {};
 struct Leave {};
 struct MatchFailure {};
+struct Dup {};
+struct Drop {};
 enum class PatternKind { kInt, kString, kArray, kSexp, kTag };
+std::string_view PatternName(PatternKind kind);
+std::optional<PatternKind> FindPatternKind(std::string_view name);
 struct PatternTest {
   PatternKind kind;
   std::string tag;
@@ -57,7 +61,7 @@ struct Branch { std::size_t target; bool when_true; };
 using Instruction =
     std::variant<Push, Load, Store, Read, ReadStack, Write, Binary, ToBool,
                  Jump, Branch, Array, String, Length, Elem, SetElem, Sexp,
-                 Scope, Enter, Leave, MatchFailure, PatternTest>;
+                 Scope, Enter, Leave, MatchFailure, PatternTest, Dup, Drop>;
 using Program = std::vector<Instruction>;
 
 void Dump(const Program& program, std::ostream& output);

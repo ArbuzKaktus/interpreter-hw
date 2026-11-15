@@ -72,16 +72,22 @@ class Writer {
   }
   void operator()(const ir::Elem&) const { result_.push_back("ELEM"); }
   void operator()(const ir::SetElem&) const { result_.push_back("SET"); }
-  void operator()(const ir::Scope&) const { RejectPattern(); }
-  void operator()(const ir::Enter&) const { RejectPattern(); }
-  void operator()(const ir::Leave&) const { RejectPattern(); }
-  void operator()(const ir::MatchFailure&) const { RejectPattern(); }
-  void operator()(const ir::PatternTest&) const { RejectPattern(); }
+  void operator()(const ir::Scope&) const { result_.push_back("SCOPE"); }
+  void operator()(const ir::Enter&) const { result_.push_back("ENTER"); }
+  void operator()(const ir::Leave&) const { result_.push_back("LEAVE"); }
+  void operator()(const ir::MatchFailure&) const { result_.push_back("MF"); }
+  void operator()(const ir::Dup&) const { result_.push_back("DUP"); }
+  void operator()(const ir::Drop&) const { result_.push_back("DROP"); }
+  void operator()(const ir::PatternTest& op) const {
+    if (op.kind == ir::PatternKind::kTag) {
+      result_.push_back(
+          {{"PATT", {{"tag", {{"name", op.tag}, {"length", op.arity}}}}}});
+    } else {
+      result_.push_back({{"PATT", ir::PatternName(op.kind)}});
+    }
+  }
 
  private:
-  [[noreturn]] static void RejectPattern() {
-    throw std::runtime_error("SM output does not yet support patterns");
-  }
   json& result_;
 };
 

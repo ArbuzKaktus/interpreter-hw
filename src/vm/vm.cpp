@@ -241,6 +241,14 @@ class Machine {
     throw std::runtime_error("match failure on " + text.str());
   }
 
+  void Step(const ir::Dup&) {
+    if (stack_.empty()) throw std::runtime_error("stack underflow");
+    const auto value = stack_.back();
+    stack_.push_back(value);
+  }
+
+  void Step(const ir::Drop&) { Pop(); }
+
   const std::vector<std::int64_t>& input_;
   std::ostream& output_;
   IntegerMode mode_;

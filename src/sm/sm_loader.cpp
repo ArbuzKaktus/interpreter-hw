@@ -53,6 +53,40 @@ std::runtime_error ErrorAt(std::size_t index, const std::string& message) {
                             message);
 }
 
+ir::PatternTest DecodePattern(const json& operand) {
+  if (operand.is_string()) {
+    if (const auto kind = ir::FindPatternKind(operand.get<std::string>())) {
+      return {*kind, {}};
+    }
+  } else if (operand.is_object() && operand.size() == 1 &&
+             operand.contains("tag")) {
+    const auto& tag = operand.at("tag");
+    if (tag.is_object() && tag.size() == 2 && tag.contains("name") &&
+        tag.contains("length")) {
+      const auto arity = DecodeConstant(tag.at("length"));
+      if (arity < 0) throw std::runtime_error("negative pattern arity");
+      return {ir::PatternKind::kTag, RequireName(tag.at("name")),
+              static_cast<std::size_t>(arity)};
+    }
+  }
+  throw std::runtime_error("invalid PATT operand");
+}
+
+ir::Instruction DecodeSimple(std::string_view opcode) {
+  if (opcode == "READ") return ir::ReadStack{};
+  if (opcode == "WRITE") return ir::Write{};
+  if (opcode == "LENGTH") return ir::Length{};
+  if (opcode == "ELEM") return ir::Elem{};
+  if (opcode == "SET") return ir::SetElem{};
+  if (opcode == "DUP") return ir::Dup{};
+  if (opcode == "DROP") return ir::Drop{};
+  if (opcode == "SCOPE") return ir::Scope{};
+  if (opcode == "ENTER") return ir::Enter{};
+  if (opcode == "LEAVE") return ir::Leave{};
+  if (opcode == "MF") return ir::MatchFailure{};
+  throw std::runtime_error("unsupported opcode: " + std::string(opcode));
+}
+
 }  // namespace
 
 SmProgram LoadSm(const nlohmann::json& code) {
@@ -71,24 +105,8 @@ SmProgram LoadSm(const nlohmann::json& code) {
   for (std::size_t index = 0; index < code.size(); ++index) {
     const auto& instruction = code[index];
     try {
-      if (instruction == "READ") {
-        emit(index, ir::ReadStack{});
-        continue;
-      }
-      if (instruction == "WRITE") {
-        emit(index, ir::Write{});
-        continue;
-      }
-      if (instruction == "LENGTH") {
-        emit(index, ir::Length{});
-        continue;
-      }
-      if (instruction == "ELEM") {
-        emit(index, ir::Elem{});
-        continue;
-      }
-      if (instruction == "SET") {
-        emit(index, ir::SetElem{});
+      if (instruction.is_string()) {
+        emit(index, DecodeSimple(instruction.get_ref<const std::string&>()));
         continue;
       }
       if (!instruction.is_object() || instruction.size() != 1) {
@@ -121,6 +139,8 @@ SmProgram LoadSm(const nlohmann::json& code) {
         emit(index, ir::Load{RequireName(operand)});
       } else if (opcode == "ST") {
         emit(index, ir::Store{RequireName(operand)});
+      } else if (opcode == "PATT") {
+        emit(index, DecodePattern(operand));
       } else if (opcode == "BINOP") {
         emit(index, ir::Binary{DecodeBinary(operand)});
       } else if (opcode == "LABEL") {

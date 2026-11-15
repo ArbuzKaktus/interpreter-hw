@@ -75,6 +75,15 @@ add_interpreter_test(ast_sexp sexp.json "" "Node (1, Leaf)\\n{2}\\n")
 add_interpreter_test(ast_patterns patterns.json "" "5\\n10\\n7\\n8\\n")
 add_interpreter_test(ast_structural_comparison structural_comparison.json "" "1\\n1\\n1\\n0\\n0\\n")
 add_interpreter_test(ast_pattern_fallback pattern_fallback.json "" "4\\n")
+add_interpreter_test(sm_playground_patterns sm/playground_patterns.json "" "3\\n")
+add_interpreter_test(sm_playground_pattern_fallback sm/playground_pattern_fallback.json "" "9\\n")
+add_test(
+    NAME sm_pattern_roundtrip
+    COMMAND ${CMAKE_COMMAND}
+        -DINTERPRETER=$<TARGET_FILE:interpreter>
+        -DAST=${CMAKE_CURRENT_SOURCE_DIR}/tests/patterns.json
+        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/compiled_patterns.json
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/sm/pattern_roundtrip.cmake)
 add_interpreter_test(sm_sexp sm/sexp.json "" "Node (1, Leaf)\\n{1, 2}\\nNode (2)\\n")
 
 function(add_interpreter_failure_test name ast input expected_error)
@@ -95,6 +104,7 @@ add_interpreter_failure_test(malformed_ast malformed_ast.json "" "unknown statem
 add_interpreter_failure_test(invalid_unreachable_ast invalid_unreachable.json "" "unknown statement type")
 add_interpreter_failure_test(sm_unknown_label sm/unknown_label.json "" "unknown label: missing")
 add_interpreter_failure_test(ast_pattern_failure pattern_failure.json "" "match failure on 1")
+add_interpreter_failure_test(sm_playground_pattern_failure sm/playground_pattern_failure.json "" "match failure on 1")
 add_interpreter_failure_test(sm_invalid_constant sm/invalid_constant.json "" "CONST expects a signed 32-bit integer")
 add_interpreter_failure_test(sm_stack_underflow sm/stack_underflow.json "" "stack underflow")
 add_interpreter_failure_test(sm_missing_input sm/read_operands.json 7 "not enough input values for READ")

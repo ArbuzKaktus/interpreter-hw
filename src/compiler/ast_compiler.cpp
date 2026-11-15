@@ -149,9 +149,6 @@ class Compiler {
     } else if (tag == "while" || tag == "do") {
       CompileLoop(body, tag == "do");
     } else if (tag == "switch") {
-      if (target_ == AstTarget::kStackMachine) {
-        throw std::runtime_error("SM output does not yet support patterns");
-      }
       CompileSwitch(body);
     } else {
       throw std::runtime_error("unknown statement type");
@@ -184,11 +181,12 @@ class Compiler {
 
     if (pattern.is_string()) {
       const auto name = pattern.get<std::string>();
-      if (name == "#int") test({Kind::kInt, {}});
-      else if (name == "#string") test({Kind::kString, {}});
-      else if (name == "#array") test({Kind::kArray, {}});
-      else if (name == "#sexp") test({Kind::kSexp, {}});
-      else if (name != "_") {
+      const auto kind = !name.empty() && name.front() == '#'
+                            ? ir::FindPatternKind(name.substr(1))
+                            : std::nullopt;
+      if (kind) {
+        test({*kind, {}});
+      } else if (name != "_") {
         LoadPatternValue(path);
         Emit(ir::String{name});
         equality();
@@ -218,7 +216,7 @@ class Compiler {
         test({Kind::kTag, RequireString(pattern.at("sexp"), "sexp"),
               children.size()});
       } else {
-        test({Kind::kArray, {}});
+        if (target_ == AstTarget::kInterpreter) test({Kind::kArray, {}});
         LoadPatternValue(path);
         Emit(ir::Length{});
         Emit(ir::Push{static_cast<std::int64_t>(children.size())});

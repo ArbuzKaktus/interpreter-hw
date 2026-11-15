@@ -22,8 +22,7 @@ class ExecutionError : public std::runtime_error {
   std::size_t pc_;
 };
 
-void Execute(const ir::Program& program,
-             const std::vector<std::int64_t>& input, std::ostream& output,
-             IntegerMode mode = IntegerMode::kChecked64);
+void Execute(const ir::Program& program, const std::vector<std::int64_t>& input,
+             std::ostream& output, IntegerMode mode = IntegerMode::kChecked64);
 
 #endif  // HW1_SRC_VM_VM_H_

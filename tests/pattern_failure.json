@@ -1,1 +1,13 @@
-{"switch":{"scrutinee":{"const":1},"branches":[{"pattern":"#string","branch":"skip"}]}}
+{
+  "switch": {
+    "scrutinee": {
+      "const": 1
+    },
+    "branches": [
+      {
+        "pattern": "#string",
+        "branch": "skip"
+      }
+    ]
+  }
+}

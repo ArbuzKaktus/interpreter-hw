@@ -1,44 +1,120 @@
 [
   "READ",
-  { "ST": "x" },
-  { "JMP": "L_while_cond_8" },
-  { "LABEL": "L_while_body_7" },
-  { "LD": "x" },
-  { "CONST": 2 },
-  { "BINOP": "%" },
-  { "CONST": 0 },
-  { "BINOP": "==" },
-  { "JZ": "L_else_10" },
-  { "LD": "x" },
+  {
+    "ST": "x"
+  },
+  {
+    "JMP": "L_while_cond_8"
+  },
+  {
+    "LABEL": "L_while_body_7"
+  },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 2
+  },
+  {
+    "BINOP": "%"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "BINOP": "=="
+  },
+  {
+    "JZ": "L_else_10"
+  },
+  {
+    "LD": "x"
+  },
   "WRITE",
-  { "JMP": "L_seq_9" },
-  { "LABEL": "L_else_10" },
-  { "LABEL": "L_seq_9" },
-  { "LD": "x" },
-  { "CONST": 1 },
-  { "BINOP": "-" },
-  { "ST": "x" },
-  { "LABEL": "L_while_cond_8" },
-  { "LD": "x" },
-  { "CONST": 0 },
-  { "BINOP": ">" },
-  { "JNZ": "L_while_body_7" },
-  { "LABEL": "L_while_body_12" },
-  { "LD": "x" },
-  { "CONST": 1 },
-  { "BINOP": "+" },
-  { "ST": "x" },
-  { "LABEL": "L_while_cond_13" },
-  { "LD": "x" },
-  { "CONST": 1 },
-  { "BINOP": "<" },
-  { "JNZ": "L_while_body_12" },
-  { "LD": "x" },
-  { "CONST": 5 },
-  { "BINOP": "&&" },
+  {
+    "JMP": "L_seq_9"
+  },
+  {
+    "LABEL": "L_else_10"
+  },
+  {
+    "LABEL": "L_seq_9"
+  },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 1
+  },
+  {
+    "BINOP": "-"
+  },
+  {
+    "ST": "x"
+  },
+  {
+    "LABEL": "L_while_cond_8"
+  },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "BINOP": ">"
+  },
+  {
+    "JNZ": "L_while_body_7"
+  },
+  {
+    "LABEL": "L_while_body_12"
+  },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 1
+  },
+  {
+    "BINOP": "+"
+  },
+  {
+    "ST": "x"
+  },
+  {
+    "LABEL": "L_while_cond_13"
+  },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 1
+  },
+  {
+    "BINOP": "<"
+  },
+  {
+    "JNZ": "L_while_body_12"
+  },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 5
+  },
+  {
+    "BINOP": "&&"
+  },
   "WRITE",
-  { "LD": "x" },
-  { "CONST": 0 },
-  { "BINOP": "!!" },
+  {
+    "LD": "x"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "BINOP": "!!"
+  },
   "WRITE"
 ]

@@ -1,1 +1,11 @@
-{ "write": { "binop": "/", "left": { "const": 1 }, "right": { "const": 0 } } }
+{
+  "write": {
+    "binop": "/",
+    "left": {
+      "const": 1
+    },
+    "right": {
+      "const": 0
+    }
+  }
+}

@@ -1,1 +1,175 @@
-{"seq":{"left":{"assn":{"dst":"a","src":{"array":[{"const":0},{"const":1}]}}},"right":{"seq":{"left":{"assn":{"dst":"b","src":{"array":[{"const":0},{"const":1}]}}},"right":{"seq":{"left":{"set":{"dst":{"var":"a"},"idx":{"const":0},"value":{"var":"a"}}},"right":{"seq":{"left":{"set":{"dst":{"var":"b"},"idx":{"const":0},"value":{"var":"b"}}},"right":{"seq":{"left":{"write":{"binop":"==","left":{"var":"a"},"right":{"var":"b"}}},"right":{"seq":{"left":{"write":{"binop":"<","left":{"array":[{"const":9}]},"right":{"array":[{"const":0},{"const":0}]}}},"right":{"seq":{"left":{"write":{"binop":"<","left":{"sexp":"A","args":[{"const":5},{"const":2}]},"right":{"sexp":"Z","args":[{"const":3}]}}},"right":{"seq":{"left":{"write":{"binop":"<","left":{"string":"z"},"right":{"string":"aa"}}},"right":{"write":{"binop":"==","left":{"array":[{"const":1}]},"right":{"array":[{"string":"a"}]}}}}}}}}}}}}}}}}}}}
+{
+  "seq": {
+    "left": {
+      "assn": {
+        "dst": "a",
+        "src": {
+          "array": [
+            {
+              "const": 0
+            },
+            {
+              "const": 1
+            }
+          ]
+        }
+      }
+    },
+    "right": {
+      "seq": {
+        "left": {
+          "assn": {
+            "dst": "b",
+            "src": {
+              "array": [
+                {
+                  "const": 0
+                },
+                {
+                  "const": 1
+                }
+              ]
+            }
+          }
+        },
+        "right": {
+          "seq": {
+            "left": {
+              "set": {
+                "dst": {
+                  "var": "a"
+                },
+                "idx": {
+                  "const": 0
+                },
+                "value": {
+                  "var": "a"
+                }
+              }
+            },
+            "right": {
+              "seq": {
+                "left": {
+                  "set": {
+                    "dst": {
+                      "var": "b"
+                    },
+                    "idx": {
+                      "const": 0
+                    },
+                    "value": {
+                      "var": "b"
+                    }
+                  }
+                },
+                "right": {
+                  "seq": {
+                    "left": {
+                      "write": {
+                        "binop": "==",
+                        "left": {
+                          "var": "a"
+                        },
+                        "right": {
+                          "var": "b"
+                        }
+                      }
+                    },
+                    "right": {
+                      "seq": {
+                        "left": {
+                          "write": {
+                            "binop": "<",
+                            "left": {
+                              "array": [
+                                {
+                                  "const": 9
+                                }
+                              ]
+                            },
+                            "right": {
+                              "array": [
+                                {
+                                  "const": 0
+                                },
+                                {
+                                  "const": 0
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "right": {
+                          "seq": {
+                            "left": {
+                              "write": {
+                                "binop": "<",
+                                "left": {
+                                  "sexp": "A",
+                                  "args": [
+                                    {
+                                      "const": 5
+                                    },
+                                    {
+                                      "const": 2
+                                    }
+                                  ]
+                                },
+                                "right": {
+                                  "sexp": "Z",
+                                  "args": [
+                                    {
+                                      "const": 3
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "right": {
+                              "seq": {
+                                "left": {
+                                  "write": {
+                                    "binop": "<",
+                                    "left": {
+                                      "string": "z"
+                                    },
+                                    "right": {
+                                      "string": "aa"
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "write": {
+                                    "binop": "==",
+                                    "left": {
+                                      "array": [
+                                        {
+                                          "const": 1
+                                        }
+                                      ]
+                                    },
+                                    "right": {
+                                      "array": [
+                                        {
+                                          "string": "a"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

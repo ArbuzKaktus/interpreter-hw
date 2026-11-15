@@ -109,6 +109,14 @@ SmProgram LoadSm(const nlohmann::json& code) {
           throw std::runtime_error("STRING expects a string operand");
         }
         emit(index, ir::String{operand.get<std::string>()});
+      } else if (opcode == "SEXP") {
+        if (!operand.is_array() || operand.size() != 2) {
+          throw std::runtime_error("SEXP expects [tag, arity]");
+        }
+        const auto arity = DecodeConstant(operand[1]);
+        if (arity < 0) throw std::runtime_error("negative SEXP arity");
+        emit(index, ir::Sexp{RequireName(operand[0]),
+                             static_cast<std::size_t>(arity)});
       } else if (opcode == "LD") {
         emit(index, ir::Load{RequireName(operand)});
       } else if (opcode == "ST") {

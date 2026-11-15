@@ -147,12 +147,20 @@ class Machine {
     if ((runtime::Integer(Pop()) != 0) == op.when_true) pc_ = op.target;
   }
 
-  void Step(const ir::Array& op) {
-    if (op.size > stack_.size()) throw std::runtime_error("stack underflow");
-    const auto first = stack_.end() - op.size;
-    const auto reference = heap_.Allocate(runtime::Array(first, stack_.end()));
+  runtime::Array PopElements(std::size_t size) {
+    if (size > stack_.size()) throw std::runtime_error("stack underflow");
+    const auto first = stack_.end() - size;
+    runtime::Array elements(first, stack_.end());
     stack_.erase(first, stack_.end());
-    stack_.push_back(reference);
+    return elements;
+  }
+
+  void Step(const ir::Array& op) {
+    stack_.push_back(heap_.Allocate(PopElements(op.size)));
+  }
+
+  void Step(const ir::Sexp& op) {
+    stack_.push_back(heap_.Allocate(runtime::Sexp{op.tag, PopElements(op.size)}));
   }
 
   void Step(const ir::String& op) {

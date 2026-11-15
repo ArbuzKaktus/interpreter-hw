@@ -67,6 +67,9 @@ class Writer {
     result_.push_back({{"STRING", op.bytes}});
   }
   void operator()(const ir::Length&) const { result_.push_back("LENGTH"); }
+  void operator()(const ir::Sexp& op) const {
+    result_.push_back({{"SEXP", json::array({op.tag, op.size})}});
+  }
   void operator()(const ir::Elem&) const { result_.push_back("ELEM"); }
   void operator()(const ir::SetElem&) const { result_.push_back("SET"); }
 

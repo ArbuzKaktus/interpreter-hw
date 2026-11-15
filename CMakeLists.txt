@@ -71,6 +71,8 @@ add_interpreter_test(sm_accepts_int32_min sm/read.json "-2147483648, 2147483647"
 add_interpreter_test(sm_arrays_strings sm/arrays_strings.json "" "5\\n2\\n98\\n3\\n")
 add_interpreter_test(ast_arrays_strings arrays_strings.json "" "5\\n2\\n98\\n3\\n")
 add_interpreter_test(sm_string_alias sm/string_alias.json "" "90\\n90\\n3\\n")
+add_interpreter_test(ast_sexp sexp.json "" "Node (1, Leaf)\\n{2}\\n")
+add_interpreter_test(sm_sexp sm/sexp.json "" "Node (1, Leaf)\\n{1, 2}\\nNode (2)\\n")
 
 function(add_interpreter_failure_test name ast input expected_error)
     add_test(

@@ -70,6 +70,14 @@ class Compiler {
       if (!elements.is_array()) throw std::runtime_error("expected array elements");
       for (const auto& element : elements) CompileExpression(element);
       Emit(ir::Array{elements.size()});
+    } else if (expression.contains("sexp")) {
+      RequireFields(expression, 2, "sexp");
+      const auto tag = RequireString(expression.at("sexp"), "sexp");
+      if (tag.empty()) throw std::runtime_error("empty S-expression tag");
+      const auto& arguments = expression.at("args");
+      if (!arguments.is_array()) throw std::runtime_error("expected SEXP args");
+      for (const auto& argument : arguments) CompileExpression(argument);
+      Emit(ir::Sexp{tag, arguments.size()});
     } else if (expression.contains("string")) {
       RequireFields(expression, 1, "string");
       Emit(ir::String{RequireString(expression.at("string"), "string")});
@@ -84,8 +92,14 @@ class Compiler {
       Emit(ir::Elem{});
     } else if (expression.contains("binop")) {
       RequireFields(expression, 3, "binary expression");
-      const auto op =
-          ParseOperator(RequireString(expression.at("binop"), "binop"), false);
+      const auto symbol = RequireString(expression.at("binop"), "binop");
+      if (symbol == ":") {
+        CompileExpression(expression.at("left"));
+        CompileExpression(expression.at("right"));
+        Emit(ir::Sexp{"cons", 2});
+        return;
+      }
+      const auto op = ParseOperator(symbol, false);
       CompileExpression(expression.at("left"));
       if (target_ == AstTarget::kInterpreter &&
           (op == ir::BinaryOp::kAnd || op == ir::BinaryOp::kOr)) {

@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <ostream>
 #include <stdexcept>
+#include <type_traits>
 #include <utility>
 
 namespace runtime {
@@ -26,7 +27,7 @@ std::int64_t Integer(const Value& value) {
 
 Reference Heap::GetReference(const Value& value) {
   if (const auto* reference = std::get_if<Reference>(&value)) return *reference;
-  throw std::runtime_error("expected an array or a string");
+  throw std::runtime_error("expected an array, string or S-expression");
 }
 
 Reference Heap::Allocate(Object object) {
@@ -38,7 +39,12 @@ Reference Heap::Allocate(Object object) {
 std::int64_t Heap::Length(const Value& value) const {
   const auto& object = objects_.at(GetReference(value).index);
   return std::visit([](const auto& elements) {
-    return static_cast<std::int64_t>(elements.size());
+    using T = std::decay_t<decltype(elements)>;
+    if constexpr (std::is_same_v<T, Sexp>) {
+      return static_cast<std::int64_t>(elements.fields.size());
+    } else {
+      return static_cast<std::int64_t>(elements.size());
+    }
   }, object);
 }
 
@@ -46,6 +52,9 @@ Value Heap::Elem(const Value& value, std::int64_t index) const {
   const auto& object = objects_.at(GetReference(value).index);
   if (const auto* array = std::get_if<Array>(&object)) {
     return (*array)[CheckedIndex(index, array->size())];
+  }
+  if (const auto* sexp = std::get_if<Sexp>(&object)) {
+    return sexp->fields[CheckedIndex(index, sexp->fields.size())];
   }
   const auto& bytes = std::get<std::string>(object);
   return static_cast<std::int64_t>(
@@ -56,6 +65,10 @@ void Heap::Set(const Value& value, std::int64_t index, Value element) {
   auto& object = objects_.at(GetReference(value).index);
   if (auto* array = std::get_if<Array>(&object)) {
     (*array)[CheckedIndex(index, array->size())] = std::move(element);
+    return;
+  }
+  if (auto* sexp = std::get_if<Sexp>(&object)) {
+    sexp->fields[CheckedIndex(index, sexp->fields.size())] = std::move(element);
     return;
   }
   auto& bytes = std::get<std::string>(object);
@@ -84,16 +97,54 @@ void Heap::Write(const Value& value, std::ostream& output,
     output << std::quoted(*bytes);
     return;
   }
-  if (active[index]) throw std::runtime_error("cannot write a cyclic array");
+  if (active[index]) throw std::runtime_error("cannot write a cyclic value");
   active[index] = true;
-  output << '[';
-  const auto& array = std::get<Array>(object);
-  for (std::size_t i = 0; i < array.size(); ++i) {
-    if (i != 0) output << ", ";
-    Write(array[i], output, active);
+  if (const auto* sexp = std::get_if<Sexp>(&object)) {
+    if (sexp->tag == "cons" || sexp->tag == "nil") {
+      WriteList(*sexp, output, active);
+    } else {
+      output << sexp->tag;
+      if (!sexp->fields.empty()) output << " (";
+      for (std::size_t i = 0; i < sexp->fields.size(); ++i) {
+        if (i != 0) output << ", ";
+        Write(sexp->fields[i], output, active);
+      }
+      if (!sexp->fields.empty()) output << ')';
+    }
+  } else {
+    output << '[';
+    const auto& array = std::get<Array>(object);
+    for (std::size_t i = 0; i < array.size(); ++i) {
+      if (i != 0) output << ", ";
+      Write(array[i], output, active);
+    }
+    output << ']';
   }
-  output << ']';
   active[index] = false;
+}
+
+void Heap::WriteList(const Sexp& root, std::ostream& output,
+                     std::vector<bool>& active) const {
+  output << '{';
+  const auto* node = &root;
+  std::vector<std::size_t> activated;
+  bool first = true;
+  while (node && node->tag == "cons" && node->fields.size() == 2) {
+    if (!first) output << ", ";
+    first = false;
+    Write(node->fields[0], output, active);
+    const auto* tail = std::get_if<Reference>(&node->fields[1]);
+    if (!tail) throw std::runtime_error("invalid list tail");
+    if (active[tail->index]) throw std::runtime_error("cannot write a cyclic value");
+    active[tail->index] = true;
+    activated.push_back(tail->index);
+    node = std::get_if<Sexp>(&objects_.at(tail->index));
+  }
+  if (!node || node->tag != "nil" || !node->fields.empty()) {
+    throw std::runtime_error("invalid list tail");
+  }
+  for (const auto index : activated) active[index] = false;
+  output << '}';
 }
 
 }  // namespace runtime

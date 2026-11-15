@@ -13,7 +13,11 @@ namespace runtime {
 struct Reference { std::size_t index; };
 using Value = std::variant<std::int64_t, Reference>;
 using Array = std::vector<Value>;
-using Object = std::variant<Array, std::string>;
+struct Sexp {
+  std::string tag;
+  Array fields;
+};
+using Object = std::variant<Array, std::string, Sexp>;
 
 std::int64_t Integer(const Value& value);
 
@@ -30,6 +34,8 @@ class Heap {
   static Reference GetReference(const Value& value);
   void Write(const Value& value, std::ostream& output,
              std::vector<bool>& active) const;
+  void WriteList(const Sexp& root, std::ostream& output,
+                 std::vector<bool>& active) const;
 
   std::vector<Object> objects_;
 };

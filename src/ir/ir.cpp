@@ -67,6 +67,9 @@ class Printer {
     output_ << "string " << std::quoted(op.bytes);
   }
   void operator()(const Length&) const { output_ << "length"; }
+  void operator()(const Sexp& op) const {
+    output_ << "sexp " << std::quoted(op.tag) << ' ' << op.size;
+  }
   void operator()(const Elem&) const { output_ << "elem"; }
   void operator()(const SetElem&) const { output_ << "set"; }
 

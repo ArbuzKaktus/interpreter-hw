@@ -33,6 +33,7 @@ struct Binary { BinaryOp op; };
 struct ToBool {};
 struct Array { std::size_t size; };
 struct String { std::string bytes; };
+struct Sexp { std::string tag; std::size_t size; };
 struct Length {};
 struct Elem {};
 struct SetElem {};
@@ -44,7 +45,7 @@ struct Branch { std::size_t target; bool when_true; };
 
 using Instruction =
     std::variant<Push, Load, Store, Read, ReadStack, Write, Binary, ToBool,
-                 Jump, Branch, Array, String, Length, Elem, SetElem>;
+                 Jump, Branch, Array, String, Length, Elem, SetElem, Sexp>;
 using Program = std::vector<Instruction>;
 
 void Dump(const Program& program, std::ostream& output);

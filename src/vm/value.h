@@ -10,7 +10,9 @@
 
 namespace runtime {
 
-struct Reference { std::size_t index; };
+struct Reference {
+  std::size_t index;
+};
 using Value = std::variant<std::int64_t, Reference>;
 using Array = std::vector<Value>;
 using Object = std::variant<Array, std::string>;

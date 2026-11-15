@@ -13,34 +13,63 @@
 namespace ir {
 
 enum class BinaryOp {
-  kAdd, kSub, kMul, kDiv, kRem, kEq, kNe, kLt, kLe, kGt, kGe, kAnd, kOr
+  kAdd,
+  kSub,
+  kMul,
+  kDiv,
+  kRem,
+  kEq,
+  kNe,
+  kLt,
+  kLe,
+  kGt,
+  kGe,
+  kAnd,
+  kOr
 };
 
 std::string_view Symbol(BinaryOp op);
 std::optional<BinaryOp> FindBinaryOp(std::string_view symbol);
 bool IsArithmetic(BinaryOp op);
 
-struct Push { std::int64_t value; };
+struct Push {
+  std::int64_t value;
+};
 struct Load {
   std::string name;
   bool default_zero = false;
 };
-struct Store { std::string name; };
-struct Read { std::string name; };
+struct Store {
+  std::string name;
+};
+struct Read {
+  std::string name;
+};
 struct ReadStack {};
 struct Write {};
-struct Binary { BinaryOp op; };
+struct Binary {
+  BinaryOp op;
+};
 struct ToBool {};
-struct Array { std::size_t size; };
-struct String { std::string bytes; };
+struct Array {
+  std::size_t size;
+};
+struct String {
+  std::string bytes;
+};
 struct Length {};
 struct Elem {};
 struct SetElem {};
 
 // Jump targets are instruction indices. Program::size() means exit.
-struct Jump { std::size_t target; };
+struct Jump {
+  std::size_t target;
+};
 // Consumes the condition on both paths.
-struct Branch { std::size_t target; bool when_true; };
+struct Branch {
+  std::size_t target;
+  bool when_true;
+};
 
 using Instruction =
     std::variant<Push, Load, Store, Read, ReadStack, Write, Binary, ToBool,

@@ -1,1 +1,7 @@
-[{"CONST":1,"CONST":2},"WRITE"]
+[
+  {
+    "CONST": 1,
+    "CONST": 2
+  },
+  "WRITE"
+]

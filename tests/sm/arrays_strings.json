@@ -1,10 +1,66 @@
 [
-  {"CONST":1}, {"CONST":2}, {"ARRAY":2}, {"ST":"a"},
-  {"LD":"a"}, {"CONST":0}, {"LD":"a"}, {"CONST":0}, "ELEM",
-  {"CONST":4}, {"BINOP":"+"}, "SET",
-  {"STRING":"abc"}, {"ST":"s"},
-  {"LD":"a"}, {"CONST":0}, "ELEM", "WRITE",
-  {"LD":"a"}, "LENGTH", "WRITE",
-  {"LD":"s"}, {"CONST":1}, "ELEM", "WRITE",
-  {"LD":"s"}, "LENGTH", "WRITE"
+  {
+    "CONST": 1
+  },
+  {
+    "CONST": 2
+  },
+  {
+    "ARRAY": 2
+  },
+  {
+    "ST": "a"
+  },
+  {
+    "LD": "a"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "LD": "a"
+  },
+  {
+    "CONST": 0
+  },
+  "ELEM",
+  {
+    "CONST": 4
+  },
+  {
+    "BINOP": "+"
+  },
+  "SET",
+  {
+    "STRING": "abc"
+  },
+  {
+    "ST": "s"
+  },
+  {
+    "LD": "a"
+  },
+  {
+    "CONST": 0
+  },
+  "ELEM",
+  "WRITE",
+  {
+    "LD": "a"
+  },
+  "LENGTH",
+  "WRITE",
+  {
+    "LD": "s"
+  },
+  {
+    "CONST": 1
+  },
+  "ELEM",
+  "WRITE",
+  {
+    "LD": "s"
+  },
+  "LENGTH",
+  "WRITE"
 ]

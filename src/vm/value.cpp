@@ -11,8 +11,8 @@ namespace {
 std::size_t CheckedIndex(std::int64_t index, std::size_t size) {
   if (index < 0 || static_cast<std::uint64_t>(index) >= size) {
     throw std::runtime_error("index " + std::to_string(index) +
-                             " is out of bounds [0, " +
-                             std::to_string(size) + ")");
+                             " is out of bounds [0, " + std::to_string(size) +
+                             ")");
   }
   return static_cast<std::size_t>(index);
 }
@@ -37,9 +37,11 @@ Reference Heap::Allocate(Object object) {
 
 std::int64_t Heap::Length(const Value& value) const {
   const auto& object = objects_.at(GetReference(value).index);
-  return std::visit([](const auto& elements) {
-    return static_cast<std::int64_t>(elements.size());
-  }, object);
+  return std::visit(
+      [](const auto& elements) {
+        return static_cast<std::int64_t>(elements.size());
+      },
+      object);
 }
 
 Value Heap::Elem(const Value& value, std::int64_t index) const {

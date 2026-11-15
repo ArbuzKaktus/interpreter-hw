@@ -2,9 +2,8 @@
 #define HW1_SRC_SM_SM_LOADER_H_
 
 #include <cstddef>
-#include <vector>
-
 #include <nlohmann/json_fwd.hpp>
+#include <vector>
 
 #include "ir/ir.h"
 

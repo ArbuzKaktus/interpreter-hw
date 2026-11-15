@@ -47,15 +47,24 @@ std::int64_t Apply(ir::BinaryOp op, std::int64_t left, std::int64_t right,
     case Op::kDiv:
       return mode == IntegerMode::kWrapping32 ? Wrap32(left / right)
                                               : left / right;
-    case Op::kRem: return left % right;
-    case Op::kEq: return left == right;
-    case Op::kNe: return left != right;
-    case Op::kLt: return left < right;
-    case Op::kLe: return left <= right;
-    case Op::kGt: return left > right;
-    case Op::kGe: return left >= right;
-    case Op::kAnd: return left != 0 && right != 0;
-    case Op::kOr: return left != 0 || right != 0;
+    case Op::kRem:
+      return left % right;
+    case Op::kEq:
+      return left == right;
+    case Op::kNe:
+      return left != right;
+    case Op::kLt:
+      return left < right;
+    case Op::kLe:
+      return left <= right;
+    case Op::kGt:
+      return left > right;
+    case Op::kGe:
+      return left >= right;
+    case Op::kAnd:
+      return left != 0 && right != 0;
+    case Op::kOr:
+      return left != 0 || right != 0;
   }
   throw std::runtime_error("integer overflow");
 }
@@ -115,7 +124,8 @@ class Machine {
     if (mode_ == IntegerMode::kWrapping32 &&
         (value < std::numeric_limits<std::int32_t>::min() ||
          value > std::numeric_limits<std::int32_t>::max())) {
-      throw std::runtime_error("input value is outside the signed 32-bit range");
+      throw std::runtime_error(
+          "input value is outside the signed 32-bit range");
     }
     return value;
   }

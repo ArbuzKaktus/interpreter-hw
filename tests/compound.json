@@ -1,12 +1,35 @@
 {
   "seq": {
-    "left": { "assn": { "dst": "x", "src": { "const": 2 } } },
+    "left": {
+      "assn": {
+        "dst": "x",
+        "src": {
+          "const": 2
+        }
+      }
+    },
     "right": {
       "seq": {
-        "left": { "assn": { "dst": "x", "op": "+", "src": { "const": 5 } } },
-        "right": { "seq": { "left": "skip", "right": { "write": { "var": "x" } } }
+        "left": {
+          "assn": {
+            "dst": "x",
+            "op": "+",
+            "src": {
+              "const": 5
+            }
+          }
+        },
+        "right": {
+          "seq": {
+            "left": "skip",
+            "right": {
+              "write": {
+                "var": "x"
+              }
+            }
+          }
+        }
       }
     }
-  }
   }
 }

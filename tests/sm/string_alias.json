@@ -1,0 +1,7 @@
+[
+  {"STRING":"abc"}, {"ST":"s"}, {"LD":"s"}, {"ST":"t"},
+  {"LD":"s"}, {"CONST":0}, {"CONST":90}, "SET",
+  {"LD":"t"}, {"CONST":0}, "ELEM", "WRITE",
+  {"LD":"s"}, {"CONST":0}, "ELEM", "WRITE",
+  {"LD":"s"}, "LENGTH", "WRITE"
+]

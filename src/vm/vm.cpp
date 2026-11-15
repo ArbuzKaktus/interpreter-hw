@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "vm/value.h"
+
 namespace {
 
 std::int64_t Wrap32(std::int64_t value) {
@@ -80,7 +82,7 @@ class Machine {
   }
 
  private:
-  std::int64_t Pop() {
+  runtime::Value Pop() {
     if (stack_.empty()) throw std::runtime_error("stack underflow");
     const auto value = stack_.back();
     stack_.pop_back();
@@ -97,7 +99,7 @@ class Machine {
     if (found != variables_.end()) {
       stack_.push_back(found->second);
     } else if (op.default_zero) {
-      stack_.push_back(0);
+      stack_.push_back(std::int64_t{0});
     } else {
       throw std::runtime_error("uninitialized variable: " + op.name);
     }
@@ -124,30 +126,58 @@ class Machine {
 
   void Step(const ir::ReadStack&) { stack_.push_back(ReadInput("READ")); }
 
-  void Step(const ir::Write&) { output_ << Pop() << '\n'; }
+  void Step(const ir::Write&) {
+    heap_.Write(Pop(), output_);
+    output_ << '\n';
+  }
 
   void Step(const ir::Binary& op) {
-    const auto right = Pop();
-    const auto left = Pop();
+    const auto right = runtime::Integer(Pop());
+    const auto left = runtime::Integer(Pop());
     stack_.push_back(Apply(op.op, left, right, mode_));
   }
 
   void Step(const ir::ToBool&) {
-    const bool value = Pop() != 0;
-    stack_.push_back(value);
+    stack_.push_back(static_cast<std::int64_t>(runtime::Integer(Pop()) != 0));
   }
 
   void Step(const ir::Jump& op) { pc_ = op.target; }
 
   void Step(const ir::Branch& op) {
-    if ((Pop() != 0) == op.when_true) pc_ = op.target;
+    if ((runtime::Integer(Pop()) != 0) == op.when_true) pc_ = op.target;
+  }
+
+  void Step(const ir::Array& op) {
+    if (op.size > stack_.size()) throw std::runtime_error("stack underflow");
+    const auto first = stack_.end() - op.size;
+    const auto reference = heap_.Allocate(runtime::Array(first, stack_.end()));
+    stack_.erase(first, stack_.end());
+    stack_.push_back(reference);
+  }
+
+  void Step(const ir::String& op) {
+    stack_.push_back(heap_.Allocate(op.bytes));
+  }
+
+  void Step(const ir::Length&) { stack_.push_back(heap_.Length(Pop())); }
+
+  void Step(const ir::Elem&) {
+    const auto index = runtime::Integer(Pop());
+    stack_.push_back(heap_.Elem(Pop(), index));
+  }
+
+  void Step(const ir::SetElem&) {
+    const auto element = Pop();
+    const auto index = runtime::Integer(Pop());
+    heap_.Set(Pop(), index, element);
   }
 
   const std::vector<std::int64_t>& input_;
   std::ostream& output_;
   IntegerMode mode_;
-  std::map<std::string, std::int64_t> variables_;
-  std::vector<std::int64_t> stack_;
+  runtime::Heap heap_;
+  std::map<std::string, runtime::Value> variables_;
+  std::vector<runtime::Value> stack_;
   std::size_t pc_ = 0;
   std::size_t input_position_ = 0;
 };

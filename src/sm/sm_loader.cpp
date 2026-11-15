@@ -79,6 +79,18 @@ SmProgram LoadSm(const nlohmann::json& code) {
         emit(index, ir::Write{});
         continue;
       }
+      if (instruction == "LENGTH") {
+        emit(index, ir::Length{});
+        continue;
+      }
+      if (instruction == "ELEM") {
+        emit(index, ir::Elem{});
+        continue;
+      }
+      if (instruction == "SET") {
+        emit(index, ir::SetElem{});
+        continue;
+      }
       if (!instruction.is_object() || instruction.size() != 1) {
         throw std::runtime_error(
             "expected READ, WRITE or an object with one opcode");
@@ -88,6 +100,15 @@ SmProgram LoadSm(const nlohmann::json& code) {
       const auto& operand = item.value();
       if (opcode == "CONST") {
         emit(index, ir::Push{DecodeConstant(operand)});
+      } else if (opcode == "ARRAY") {
+        const auto size = DecodeConstant(operand);
+        if (size < 0) throw std::runtime_error("negative array size");
+        emit(index, ir::Array{static_cast<std::size_t>(size)});
+      } else if (opcode == "STRING") {
+        if (!operand.is_string()) {
+          throw std::runtime_error("STRING expects a string operand");
+        }
+        emit(index, ir::String{operand.get<std::string>()});
       } else if (opcode == "LD") {
         emit(index, ir::Load{RequireName(operand)});
       } else if (opcode == "ST") {

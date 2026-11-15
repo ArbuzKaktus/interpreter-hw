@@ -60,6 +60,15 @@ class Writer {
   void operator()(const ir::Branch& op) const {
     result_.push_back({{op.when_true ? "JNZ" : "JZ", Label(op.target)}});
   }
+  void operator()(const ir::Array& op) const {
+    result_.push_back({{"ARRAY", op.size}});
+  }
+  void operator()(const ir::String& op) const {
+    result_.push_back({{"STRING", op.bytes}});
+  }
+  void operator()(const ir::Length&) const { result_.push_back("LENGTH"); }
+  void operator()(const ir::Elem&) const { result_.push_back("ELEM"); }
+  void operator()(const ir::SetElem&) const { result_.push_back("SET"); }
 
  private:
   json& result_;

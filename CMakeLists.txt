@@ -20,7 +20,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(interpreter_ir src/ir/ir.cpp src/vm/vm.cpp)
+add_library(interpreter_ir src/ir/ir.cpp src/vm/vm.cpp src/vm/value.cpp)
 target_include_directories(interpreter_ir PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_options(interpreter_ir PRIVATE -Wall -Wextra -Wpedantic)
 
@@ -68,6 +68,9 @@ add_interpreter_test(sm_playground_for_elif sm/playground_for_elif.json 6 "26\\n
 add_interpreter_test(sm_playground_for_zero_iterations sm/playground_for_elif.json 0 "0\\n")
 add_interpreter_test(sm_playground_skip sm/empty.json "" "")
 add_interpreter_test(sm_accepts_int32_min sm/read.json "-2147483648, 2147483647" "-2147483648\\n")
+add_interpreter_test(sm_arrays_strings sm/arrays_strings.json "" "5\\n2\\n98\\n3\\n")
+add_interpreter_test(ast_arrays_strings arrays_strings.json "" "5\\n2\\n98\\n3\\n")
+add_interpreter_test(sm_string_alias sm/string_alias.json "" "90\\n90\\n3\\n")
 
 function(add_interpreter_failure_test name ast input expected_error)
     add_test(

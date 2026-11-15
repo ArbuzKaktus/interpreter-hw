@@ -64,6 +64,24 @@ class Compiler {
     } else if (expression.contains("var")) {
       RequireFields(expression, 1, "variable");
       Emit(ir::Load{RequireString(expression.at("var"), "var")});
+    } else if (expression.contains("array")) {
+      RequireFields(expression, 1, "array");
+      const auto& elements = expression.at("array");
+      if (!elements.is_array()) throw std::runtime_error("expected array elements");
+      for (const auto& element : elements) CompileExpression(element);
+      Emit(ir::Array{elements.size()});
+    } else if (expression.contains("string")) {
+      RequireFields(expression, 1, "string");
+      Emit(ir::String{RequireString(expression.at("string"), "string")});
+    } else if (expression.contains("length")) {
+      RequireFields(expression, 1, "length");
+      CompileExpression(expression.at("length"));
+      Emit(ir::Length{});
+    } else if (expression.contains("elem")) {
+      RequireFields(expression, 2, "elem");
+      CompileExpression(expression.at("elem"));
+      CompileExpression(expression.at("index"));
+      Emit(ir::Elem{});
     } else if (expression.contains("binop")) {
       RequireFields(expression, 3, "binary expression");
       const auto op =
@@ -105,6 +123,12 @@ class Compiler {
       Emit(ir::Write{});
     } else if (tag == "assn") {
       CompileAssignment(body);
+    } else if (tag == "set") {
+      RequireFields(body, 3, "set");
+      CompileExpression(body.at("dst"));
+      CompileExpression(body.at("idx"));
+      CompileExpression(body.at("value"));
+      Emit(ir::SetElem{});
     } else if (tag == "if") {
       CompileIf(body);
     } else if (tag == "while" || tag == "do") {
@@ -117,7 +141,10 @@ class Compiler {
   void CompileAssignment(const json& body) {
     const bool compound = body.contains("op");
     RequireFields(body, compound ? 3 : 2, "assn");
-    const auto destination = RequireString(body.at("dst"), "dst");
+    const auto& dst = body.at("dst");
+    if (dst.is_object()) RequireFields(dst, 1, "assignment destination");
+    const auto destination =
+        RequireString(dst.is_object() ? dst.at("var") : dst, "dst");
     if (compound) Emit(ir::Load{destination,
                                 target_ == AstTarget::kInterpreter});
     CompileExpression(body.at("src"));

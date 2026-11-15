@@ -31,6 +31,11 @@ struct ReadStack {};
 struct Write {};
 struct Binary { BinaryOp op; };
 struct ToBool {};
+struct Array { std::size_t size; };
+struct String { std::string bytes; };
+struct Length {};
+struct Elem {};
+struct SetElem {};
 
 // Jump targets are instruction indices. Program::size() means exit.
 struct Jump { std::size_t target; };
@@ -39,7 +44,7 @@ struct Branch { std::size_t target; bool when_true; };
 
 using Instruction =
     std::variant<Push, Load, Store, Read, ReadStack, Write, Binary, ToBool,
-                 Jump, Branch>;
+                 Jump, Branch, Array, String, Length, Elem, SetElem>;
 using Program = std::vector<Instruction>;
 
 void Dump(const Program& program, std::ostream& output);

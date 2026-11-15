@@ -62,6 +62,13 @@ class Printer {
   void operator()(const Branch& op) const {
     output_ << (op.when_true ? "branch_true " : "branch_false ") << op.target;
   }
+  void operator()(const Array& op) const { output_ << "array " << op.size; }
+  void operator()(const String& op) const {
+    output_ << "string " << std::quoted(op.bytes);
+  }
+  void operator()(const Length&) const { output_ << "length"; }
+  void operator()(const Elem&) const { output_ << "elem"; }
+  void operator()(const SetElem&) const { output_ << "set"; }
 
  private:
   std::ostream& output_;

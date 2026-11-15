@@ -23,14 +23,8 @@ std::string RequireString(const json& value, const char* field) {
 }
 
 ir::BinaryOp ParseOperator(const std::string& symbol, bool compound) {
-  using Op = ir::BinaryOp;
-  constexpr Op kOperators[] = {Op::kAdd, Op::kSub, Op::kMul, Op::kDiv,
-                               Op::kRem, Op::kEq,  Op::kNe,  Op::kLt,
-                               Op::kLe,  Op::kGt,  Op::kGe};
-  for (const Op op : kOperators) {
-    if (compound && op == Op::kEq) break;
-    if (ir::Symbol(op) == symbol) return op;
-  }
+  const auto op = ir::FindBinaryOp(symbol);
+  if (op && (!compound || ir::IsArithmetic(*op))) return *op;
   throw std::runtime_error(
       (compound ? "invalid compound assignment operator: "
                 : "unknown binary operator: ") + symbol);
@@ -70,10 +64,11 @@ class Compiler {
       Emit(ir::Load{RequireString(expression.at("var"), "var")});
     } else if (expression.contains("binop")) {
       RequireFields(expression, 3, "binary expression");
-      const auto symbol = RequireString(expression.at("binop"), "binop");
+      const auto op =
+          ParseOperator(RequireString(expression.at("binop"), "binop"), false);
       CompileExpression(expression.at("left"));
-      if (symbol == "&&" || symbol == "!!") {
-        const bool short_circuit_value = symbol == "!!";
+      if (op == ir::BinaryOp::kAnd || op == ir::BinaryOp::kOr) {
+        const bool short_circuit_value = op == ir::BinaryOp::kOr;
         const auto branch = Emit(ir::Branch{0, short_circuit_value});
         CompileExpression(expression.at("right"));
         Emit(ir::ToBool{});
@@ -82,7 +77,6 @@ class Compiler {
         Emit(ir::Push{short_circuit_value});
         Patch<ir::Jump>(skip_constant);
       } else {
-        const auto op = ParseOperator(symbol, false);
         CompileExpression(expression.at("right"));
         Emit(ir::Binary{op});
       }

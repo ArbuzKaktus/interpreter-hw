@@ -7,6 +7,29 @@
 namespace ir {
 namespace {
 
+struct Operator {
+  BinaryOp op;
+  std::string_view symbol;
+  bool arithmetic = false;
+};
+
+constexpr Operator kOperators[] = {
+    {BinaryOp::kAdd, "+", true}, {BinaryOp::kSub, "-", true},
+    {BinaryOp::kMul, "*", true}, {BinaryOp::kDiv, "/", true},
+    {BinaryOp::kRem, "%", true}, {BinaryOp::kEq, "=="},
+    {BinaryOp::kNe, "!="},      {BinaryOp::kLt, "<"},
+    {BinaryOp::kLe, "<="},      {BinaryOp::kGt, ">"},
+    {BinaryOp::kGe, ">="},      {BinaryOp::kAnd, "&&"},
+    {BinaryOp::kOr, "!!"},
+};
+
+const Operator& Describe(BinaryOp op) {
+  for (const auto& entry : kOperators) {
+    if (entry.op == op) return entry;
+  }
+  throw std::logic_error("invalid binary opcode");
+}
+
 class Printer {
  public:
   explicit Printer(std::ostream& output) : output_(output) {}
@@ -23,6 +46,7 @@ class Printer {
   void operator()(const Read& op) const {
     output_ << "read " << std::quoted(op.name);
   }
+  void operator()(const ReadStack&) const { output_ << "read"; }
   void operator()(const Write&) const {
     output_ << "write";
   }
@@ -46,21 +70,17 @@ class Printer {
 }  // namespace
 
 std::string_view Symbol(BinaryOp op) {
-  switch (op) {
-    case BinaryOp::kAdd: return "+";
-    case BinaryOp::kSub: return "-";
-    case BinaryOp::kMul: return "*";
-    case BinaryOp::kDiv: return "/";
-    case BinaryOp::kRem: return "%";
-    case BinaryOp::kEq: return "==";
-    case BinaryOp::kNe: return "!=";
-    case BinaryOp::kLt: return "<";
-    case BinaryOp::kLe: return "<=";
-    case BinaryOp::kGt: return ">";
-    case BinaryOp::kGe: return ">=";
-  }
-  throw std::logic_error("invalid binary opcode");
+  return Describe(op).symbol;
 }
+
+std::optional<BinaryOp> FindBinaryOp(std::string_view symbol) {
+  for (const auto& entry : kOperators) {
+    if (entry.symbol == symbol) return entry.op;
+  }
+  return std::nullopt;
+}
+
+bool IsArithmetic(BinaryOp op) { return Describe(op).arithmetic; }
 
 void Dump(const Program& program, std::ostream& output) {
   for (std::size_t pc = 0; pc < program.size(); ++pc) {

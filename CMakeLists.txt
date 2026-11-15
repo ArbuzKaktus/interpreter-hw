@@ -3,11 +3,16 @@ project(ast_interpreter LANGUAGES CXX)
 
 include(FetchContent)
 
+# Show dependency download progress instead of silently waiting for GitHub.
+set(FETCHCONTENT_QUIET OFF)
+
 FetchContent_Declare(
     nlohmann_json
     GIT_REPOSITORY https://github.com/nlohmann/json.git
     GIT_TAG v3.11.3
     GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+    GIT_CONFIG http.lowSpeedLimit=1 http.lowSpeedTime=30
 )
 FetchContent_MakeAvailable(nlohmann_json)
 

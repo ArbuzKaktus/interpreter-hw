@@ -7,7 +7,7 @@
 
 #include "ir/ir.h"
 
-void Execute(const ir::Program& program,
-             const std::vector<std::int64_t>& input, std::ostream& output);
+void Execute(const ir::Program& program, const std::vector<std::int64_t>& input,
+             std::ostream& output);
 
 #endif  // HW1_SRC_VM_VM_H_

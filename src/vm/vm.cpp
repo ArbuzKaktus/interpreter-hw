@@ -32,14 +32,22 @@ std::int64_t Apply(ir::BinaryOp op, std::int64_t left, std::int64_t right) {
     case Op::kMul:
       if (!__builtin_mul_overflow(left, right, &result)) return result;
       break;
-    case Op::kDiv: return left / right;
-    case Op::kRem: return left % right;
-    case Op::kEq: return left == right;
-    case Op::kNe: return left != right;
-    case Op::kLt: return left < right;
-    case Op::kLe: return left <= right;
-    case Op::kGt: return left > right;
-    case Op::kGe: return left >= right;
+    case Op::kDiv:
+      return left / right;
+    case Op::kRem:
+      return left % right;
+    case Op::kEq:
+      return left == right;
+    case Op::kNe:
+      return left != right;
+    case Op::kLt:
+      return left < right;
+    case Op::kLe:
+      return left <= right;
+    case Op::kGt:
+      return left > right;
+    case Op::kGe:
+      return left >= right;
   }
   throw std::runtime_error("integer overflow");
 }

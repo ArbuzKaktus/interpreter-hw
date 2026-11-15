@@ -41,7 +41,8 @@ int main(int argc, char* argv[]) {
     for (int index = 1; index < argc; ++index) {
       const std::string argument = argv[index];
       if (argument == "--help") {
-        std::cout << "Usage: interpreter [ast.json] [--input 1,2,3] [--dump-ir]\n";
+        std::cout
+            << "Usage: interpreter [ast.json] [--input 1,2,3] [--dump-ir]\n";
         return ExitCodes::SUCCESS;
       }
       if (argument == "--dump-ir") {

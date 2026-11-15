@@ -1,0 +1,11 @@
+{
+  "seq": {
+    "left": { "write": { "const": 1 } },
+    "right": {
+      "if": {
+        "cond": { "const": 0 },
+        "then": { "wat": 1 }
+      }
+    }
+  }
+}

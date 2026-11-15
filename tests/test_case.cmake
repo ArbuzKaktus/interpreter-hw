@@ -1,6 +1,6 @@
 # Generic script for a successful integration test.
 execute_process(
-  COMMAND "${INTERPRETER}" "${AST}" --input "${INPUT}"
+  COMMAND "${INTERPRETER}" "${AST}" --input "${INPUT}" ${MODE}
   RESULT_VARIABLE status
   OUTPUT_VARIABLE output
   ERROR_VARIABLE error)

@@ -20,7 +20,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(interpreter main.cpp)
+add_library(interpreter_ir src/ir/ir.cpp src/vm/vm.cpp)
+target_include_directories(interpreter_ir PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_compile_options(interpreter_ir PRIVATE -Wall -Wextra -Wpedantic)
+
+add_executable(interpreter src/cli/main.cpp src/compiler/ast_compiler.cpp)
+target_link_libraries(interpreter PRIVATE interpreter_ir)
 target_link_libraries(interpreter PRIVATE nlohmann_json::nlohmann_json)
 target_compile_options(interpreter PRIVATE -Wall -Wextra -Wpedantic)
 
@@ -57,3 +62,13 @@ add_interpreter_failure_test(undefined_variable undefined_variable.json "" "unin
 add_interpreter_failure_test(division_by_zero division_by_zero.json "" "division by zero")
 add_interpreter_failure_test(missing_input missing_input.json "" "not enough input values")
 add_interpreter_failure_test(malformed_ast malformed_ast.json "" "unknown statement type")
+add_interpreter_failure_test(invalid_unreachable_ast invalid_unreachable.json "" "unknown statement type")
+
+add_test(
+    NAME dump_ir
+    COMMAND ${CMAKE_COMMAND}
+        -DINTERPRETER=$<TARGET_FILE:interpreter>
+        -DAST=${CMAKE_CURRENT_SOURCE_DIR}/tests/missing_input.json
+        -DMODE=--dump-ir
+        "-DEXPECTED=0: read \"x\"\\n1: end\\n"
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_case.cmake)

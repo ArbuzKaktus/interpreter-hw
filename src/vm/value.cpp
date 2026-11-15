@@ -12,8 +12,8 @@ namespace {
 std::size_t CheckedIndex(std::int64_t index, std::size_t size) {
   if (index < 0 || static_cast<std::uint64_t>(index) >= size) {
     throw std::runtime_error("index " + std::to_string(index) +
-                             " is out of bounds [0, " +
-                             std::to_string(size) + ")");
+                             " is out of bounds [0, " + std::to_string(size) +
+                             ")");
   }
   return static_cast<std::size_t>(index);
 }
@@ -38,14 +38,16 @@ Reference Heap::Allocate(Object object) {
 
 std::int64_t Heap::Length(const Value& value) const {
   const auto& object = objects_.at(GetReference(value).index);
-  return std::visit([](const auto& elements) {
-    using T = std::decay_t<decltype(elements)>;
-    if constexpr (std::is_same_v<T, Sexp>) {
-      return static_cast<std::int64_t>(elements.fields.size());
-    } else {
-      return static_cast<std::int64_t>(elements.size());
-    }
-  }, object);
+  return std::visit(
+      [](const auto& elements) {
+        using T = std::decay_t<decltype(elements)>;
+        if constexpr (std::is_same_v<T, Sexp>) {
+          return static_cast<std::int64_t>(elements.fields.size());
+        } else {
+          return static_cast<std::int64_t>(elements.size());
+        }
+      },
+      object);
 }
 
 Value Heap::Elem(const Value& value, std::int64_t index) const {
@@ -135,7 +137,8 @@ void Heap::WriteList(const Sexp& root, std::ostream& output,
     Write(node->fields[0], output, active);
     const auto* tail = std::get_if<Reference>(&node->fields[1]);
     if (!tail) throw std::runtime_error("invalid list tail");
-    if (active[tail->index]) throw std::runtime_error("cannot write a cyclic value");
+    if (active[tail->index])
+      throw std::runtime_error("cannot write a cyclic value");
     active[tail->index] = true;
     activated.push_back(tail->index);
     node = std::get_if<Sexp>(&objects_.at(tail->index));
@@ -153,10 +156,14 @@ bool Heap::Matches(const Value& value, const ir::PatternTest& pattern) const {
   if (!reference) return pattern.kind == Kind::kInt;
   const auto& object = objects_.at(reference->index);
   switch (pattern.kind) {
-    case Kind::kInt: return false;
-    case Kind::kString: return std::holds_alternative<std::string>(object);
-    case Kind::kArray: return std::holds_alternative<Array>(object);
-    case Kind::kSexp: return std::holds_alternative<Sexp>(object);
+    case Kind::kInt:
+      return false;
+    case Kind::kString:
+      return std::holds_alternative<std::string>(object);
+    case Kind::kArray:
+      return std::holds_alternative<Array>(object);
+    case Kind::kSexp:
+      return std::holds_alternative<Sexp>(object);
     case Kind::kTag: {
       const auto* sexp = std::get_if<Sexp>(&object);
       return sexp && sexp->tag == pattern.tag &&
@@ -192,7 +199,8 @@ std::optional<int> Heap::Compare(const Value& left, const Value& right,
   if (xs && xs->tag != ys->tag) return xs->tag.compare(ys->tag);
   const auto& first = xs ? xs->fields : std::get<Array>(x);
   const auto& second = ys ? ys->fields : std::get<Array>(y);
-  if (first.size() != second.size()) return first.size() < second.size() ? -1 : 1;
+  if (first.size() != second.size())
+    return first.size() < second.size() ? -1 : 1;
   for (std::size_t i = 0; i < first.size(); ++i) {
     const auto result = Compare(first[i], second[i], visited);
     if (!result || *result != 0) return result;

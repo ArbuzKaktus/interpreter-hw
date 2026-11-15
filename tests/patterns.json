@@ -1,1 +1,156 @@
-{"seq":{"left":{"assn":{"dst":"x","src":{"const":10}}},"right":{"seq":{"left":{"assn":{"dst":"y","src":{"const":20}}},"right":{"seq":{"left":{"switch":{"scrutinee":{"sexp":"Node","args":[{"const":2}]},"branches":[{"pattern":{"sexp":"Node","args":[{"bind":{"name":"x","pattern":{"wildcard":[]}}}]},"branch":{"seq":{"left":{"switch":{"scrutinee":{"const":4},"branches":[{"pattern":{"bind":{"name":"inner","pattern":"#int"}},"branch":{"assn":{"dst":"x","src":{"var":"inner"}}}}]}},"right":{"seq":{"left":{"assn":{"dst":"x","src":{"binop":"+","left":{"var":"x"},"right":{"const":1}}}},"right":{"seq":{"left":{"assn":{"dst":"y","src":{"const":7}}},"right":{"seq":{"left":{"assn":{"dst":"z","src":{"const":8}}},"right":{"write":{"var":"x"}}}}}}}}}}}]}},"right":{"seq":{"left":{"write":{"var":"x"}},"right":{"seq":{"left":{"write":{"var":"y"}},"right":{"write":{"var":"z"}}}}}}}}}}}}
+{
+  "seq": {
+    "left": {
+      "assn": {
+        "dst": "x",
+        "src": {
+          "const": 10
+        }
+      }
+    },
+    "right": {
+      "seq": {
+        "left": {
+          "assn": {
+            "dst": "y",
+            "src": {
+              "const": 20
+            }
+          }
+        },
+        "right": {
+          "seq": {
+            "left": {
+              "switch": {
+                "scrutinee": {
+                  "sexp": "Node",
+                  "args": [
+                    {
+                      "const": 2
+                    }
+                  ]
+                },
+                "branches": [
+                  {
+                    "pattern": {
+                      "sexp": "Node",
+                      "args": [
+                        {
+                          "bind": {
+                            "name": "x",
+                            "pattern": {
+                              "wildcard": []
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    "branch": {
+                      "seq": {
+                        "left": {
+                          "switch": {
+                            "scrutinee": {
+                              "const": 4
+                            },
+                            "branches": [
+                              {
+                                "pattern": {
+                                  "bind": {
+                                    "name": "inner",
+                                    "pattern": "#int"
+                                  }
+                                },
+                                "branch": {
+                                  "assn": {
+                                    "dst": "x",
+                                    "src": {
+                                      "var": "inner"
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "right": {
+                          "seq": {
+                            "left": {
+                              "assn": {
+                                "dst": "x",
+                                "src": {
+                                  "binop": "+",
+                                  "left": {
+                                    "var": "x"
+                                  },
+                                  "right": {
+                                    "const": 1
+                                  }
+                                }
+                              }
+                            },
+                            "right": {
+                              "seq": {
+                                "left": {
+                                  "assn": {
+                                    "dst": "y",
+                                    "src": {
+                                      "const": 7
+                                    }
+                                  }
+                                },
+                                "right": {
+                                  "seq": {
+                                    "left": {
+                                      "assn": {
+                                        "dst": "z",
+                                        "src": {
+                                          "const": 8
+                                        }
+                                      }
+                                    },
+                                    "right": {
+                                      "write": {
+                                        "var": "x"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "right": {
+              "seq": {
+                "left": {
+                  "write": {
+                    "var": "x"
+                  }
+                },
+                "right": {
+                  "seq": {
+                    "left": {
+                      "write": {
+                        "var": "y"
+                      }
+                    },
+                    "right": {
+                      "write": {
+                        "var": "z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

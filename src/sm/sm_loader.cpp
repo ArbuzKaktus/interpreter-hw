@@ -3,12 +3,11 @@
 #include <cstdint>
 #include <limits>
 #include <map>
+#include <nlohmann/json.hpp>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <nlohmann/json.hpp>
 
 namespace {
 
@@ -95,8 +94,7 @@ SmProgram LoadSm(const nlohmann::json& code) {
   }
   SmProgram result;
   auto& program = result.instructions;
-  const auto emit = [&result](std::size_t index,
-                              ir::Instruction instruction) {
+  const auto emit = [&result](std::size_t index, ir::Instruction instruction) {
     result.instructions.push_back(std::move(instruction));
     result.source_indices.push_back(index);
   };

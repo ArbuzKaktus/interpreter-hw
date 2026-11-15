@@ -1,1 +1,8 @@
-["READ", "READ", { "BINOP": "-" }, "WRITE"]
+[
+  "READ",
+  "READ",
+  {
+    "BINOP": "-"
+  },
+  "WRITE"
+]

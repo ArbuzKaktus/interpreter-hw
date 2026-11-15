@@ -1,46 +1,130 @@
 [
   "READ",
-  {"ST":"n"},
-  {"CONST":0},
-  {"ST":"sum"},
-  {"CONST":1},
-  {"ST":"i"},
-  {"JMP":"L_while_cond_240"},
-  {"LABEL":"L_while_body_239"},
-  {"LD":"i"},
-  {"CONST":3},
-  {"BINOP":"%"},
-  {"CONST":0},
-  {"BINOP":"=="},
-  {"JZ":"L_else_242"},
-  {"LD":"sum"},
-  {"CONST":10},
-  {"BINOP":"+"},
-  {"ST":"sum"},
-  {"JMP":"L_seq_241"},
-  {"LABEL":"L_else_242"},
-  {"LD":"i"},
-  {"CONST":2},
-  {"BINOP":"%"},
-  {"CONST":0},
-  {"BINOP":"=="},
-  {"JZ":"L_else_243"},
-  {"LD":"sum"},
-  {"LD":"i"},
-  {"BINOP":"+"},
-  {"ST":"sum"},
-  {"JMP":"L_seq_241"},
-  {"LABEL":"L_else_243"},
-  {"LABEL":"L_seq_241"},
-  {"LD":"i"},
-  {"CONST":1},
-  {"BINOP":"+"},
-  {"ST":"i"},
-  {"LABEL":"L_while_cond_240"},
-  {"LD":"i"},
-  {"LD":"n"},
-  {"BINOP":"<="},
-  {"JNZ":"L_while_body_239"},
-  {"LD":"sum"},
+  {
+    "ST": "n"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "ST": "sum"
+  },
+  {
+    "CONST": 1
+  },
+  {
+    "ST": "i"
+  },
+  {
+    "JMP": "L_while_cond_240"
+  },
+  {
+    "LABEL": "L_while_body_239"
+  },
+  {
+    "LD": "i"
+  },
+  {
+    "CONST": 3
+  },
+  {
+    "BINOP": "%"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "BINOP": "=="
+  },
+  {
+    "JZ": "L_else_242"
+  },
+  {
+    "LD": "sum"
+  },
+  {
+    "CONST": 10
+  },
+  {
+    "BINOP": "+"
+  },
+  {
+    "ST": "sum"
+  },
+  {
+    "JMP": "L_seq_241"
+  },
+  {
+    "LABEL": "L_else_242"
+  },
+  {
+    "LD": "i"
+  },
+  {
+    "CONST": 2
+  },
+  {
+    "BINOP": "%"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "BINOP": "=="
+  },
+  {
+    "JZ": "L_else_243"
+  },
+  {
+    "LD": "sum"
+  },
+  {
+    "LD": "i"
+  },
+  {
+    "BINOP": "+"
+  },
+  {
+    "ST": "sum"
+  },
+  {
+    "JMP": "L_seq_241"
+  },
+  {
+    "LABEL": "L_else_243"
+  },
+  {
+    "LABEL": "L_seq_241"
+  },
+  {
+    "LD": "i"
+  },
+  {
+    "CONST": 1
+  },
+  {
+    "BINOP": "+"
+  },
+  {
+    "ST": "i"
+  },
+  {
+    "LABEL": "L_while_cond_240"
+  },
+  {
+    "LD": "i"
+  },
+  {
+    "LD": "n"
+  },
+  {
+    "BINOP": "<="
+  },
+  {
+    "JNZ": "L_while_body_239"
+  },
+  {
+    "LD": "sum"
+  },
   "WRITE"
 ]

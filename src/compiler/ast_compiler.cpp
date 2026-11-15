@@ -26,9 +26,9 @@ std::string RequireString(const json& value, const char* field) {
 ir::BinaryOp ParseOperator(const std::string& symbol, bool compound) {
   const auto op = ir::FindBinaryOp(symbol);
   if (op && (!compound || ir::IsArithmetic(*op))) return *op;
-  throw std::runtime_error(
-      (compound ? "invalid compound assignment operator: "
-                : "unknown binary operator: ") + symbol);
+  throw std::runtime_error((compound ? "invalid compound assignment operator: "
+                                     : "unknown binary operator: ") +
+                           symbol);
 }
 
 class Compiler {
@@ -68,7 +68,8 @@ class Compiler {
     } else if (expression.contains("array")) {
       RequireFields(expression, 1, "array");
       const auto& elements = expression.at("array");
-      if (!elements.is_array()) throw std::runtime_error("expected array elements");
+      if (!elements.is_array())
+        throw std::runtime_error("expected array elements");
       for (const auto& element : elements) CompileExpression(element);
       Emit(ir::Array{elements.size()});
     } else if (expression.contains("sexp")) {
@@ -211,7 +212,8 @@ class Compiler {
       const bool sexp = pattern.contains("sexp");
       RequireFields(pattern, sexp ? 2 : 1, "composite pattern");
       const auto& children = pattern.at(sexp ? "args" : "array");
-      if (!children.is_array()) throw std::runtime_error("invalid pattern args");
+      if (!children.is_array())
+        throw std::runtime_error("invalid pattern args");
       if (sexp) {
         test({Kind::kTag, RequireString(pattern.at("sexp"), "sexp"),
               children.size()});
@@ -273,8 +275,8 @@ class Compiler {
     if (dst.is_object()) RequireFields(dst, 1, "assignment destination");
     const auto destination =
         RequireString(dst.is_object() ? dst.at("var") : dst, "dst");
-    if (compound) Emit(ir::Load{destination,
-                                target_ == AstTarget::kInterpreter});
+    if (compound)
+      Emit(ir::Load{destination, target_ == AstTarget::kInterpreter});
     CompileExpression(body.at("src"));
     if (compound) {
       Emit(ir::Binary{ParseOperator(RequireString(body.at("op"), "op"),

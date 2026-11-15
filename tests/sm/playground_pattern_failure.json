@@ -1,7 +1,42 @@
 [
-  {"CONST":1}, "DUP", "SCOPE", {"ST":"_"}, "ENTER",
-  {"LABEL":"L_matchPattern_300"}, "DUP", {"PATT":"string"},
-  {"JZ":"L_matchFailure_299"}, "DROP", {"LD":"_"}, "SCOPE",
-  {"ST":"_"}, "ENTER", "LEAVE", "LEAVE", {"JMP":"L_end_298"},
-  {"LABEL":"L_matchFailure_299"}, "MF", {"LABEL":"L_end_298"}
+  {
+    "CONST": 1
+  },
+  "DUP",
+  "SCOPE",
+  {
+    "ST": "_"
+  },
+  "ENTER",
+  {
+    "LABEL": "L_matchPattern_300"
+  },
+  "DUP",
+  {
+    "PATT": "string"
+  },
+  {
+    "JZ": "L_matchFailure_299"
+  },
+  "DROP",
+  {
+    "LD": "_"
+  },
+  "SCOPE",
+  {
+    "ST": "_"
+  },
+  "ENTER",
+  "LEAVE",
+  "LEAVE",
+  {
+    "JMP": "L_end_298"
+  },
+  {
+    "LABEL": "L_matchFailure_299"
+  },
+  "MF",
+  {
+    "LABEL": "L_end_298"
+  }
 ]

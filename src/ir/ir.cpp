@@ -17,9 +17,9 @@ constexpr Operator kOperators[] = {
     {BinaryOp::kAdd, "+", true}, {BinaryOp::kSub, "-", true},
     {BinaryOp::kMul, "*", true}, {BinaryOp::kDiv, "/", true},
     {BinaryOp::kRem, "%", true}, {BinaryOp::kEq, "=="},
-    {BinaryOp::kNe, "!="},      {BinaryOp::kLt, "<"},
-    {BinaryOp::kLe, "<="},      {BinaryOp::kGt, ">"},
-    {BinaryOp::kGe, ">="},      {BinaryOp::kAnd, "&&"},
+    {BinaryOp::kNe, "!="},       {BinaryOp::kLt, "<"},
+    {BinaryOp::kLe, "<="},       {BinaryOp::kGt, ">"},
+    {BinaryOp::kGe, ">="},       {BinaryOp::kAnd, "&&"},
     {BinaryOp::kOr, "!!"},
 };
 
@@ -34,11 +34,10 @@ class Printer {
  public:
   explicit Printer(std::ostream& output) : output_(output) {}
 
-  void operator()(const Push& op) const {
-    output_ << "push " << op.value;
-  }
+  void operator()(const Push& op) const { output_ << "push " << op.value; }
   void operator()(const Load& op) const {
-    output_ << (op.default_zero ? "load_or_zero " : "load ") << std::quoted(op.name);
+    output_ << (op.default_zero ? "load_or_zero " : "load ")
+            << std::quoted(op.name);
   }
   void operator()(const Store& op) const {
     output_ << "store " << std::quoted(op.name);
@@ -47,18 +46,12 @@ class Printer {
     output_ << "read " << std::quoted(op.name);
   }
   void operator()(const ReadStack&) const { output_ << "read"; }
-  void operator()(const Write&) const {
-    output_ << "write";
-  }
+  void operator()(const Write&) const { output_ << "write"; }
   void operator()(const Binary& op) const {
     output_ << "binary " << Symbol(op.op);
   }
-  void operator()(const ToBool&) const {
-    output_ << "to_bool";
-  }
-  void operator()(const Jump& op) const {
-    output_ << "jump " << op.target;
-  }
+  void operator()(const ToBool&) const { output_ << "to_bool"; }
+  void operator()(const Jump& op) const { output_ << "jump " << op.target; }
   void operator()(const Branch& op) const {
     output_ << (op.when_true ? "branch_true " : "branch_false ") << op.target;
   }
@@ -91,9 +84,7 @@ class Printer {
 
 }  // namespace
 
-std::string_view Symbol(BinaryOp op) {
-  return Describe(op).symbol;
-}
+std::string_view Symbol(BinaryOp op) { return Describe(op).symbol; }
 
 std::optional<BinaryOp> FindBinaryOp(std::string_view symbol) {
   for (const auto& entry : kOperators) {
@@ -107,8 +98,8 @@ bool IsComparison(BinaryOp op) {
   return !IsArithmetic(op) && op != BinaryOp::kAnd && op != BinaryOp::kOr;
 }
 
-constexpr std::string_view kPatternNames[] = {
-    "int", "string", "array", "sexp", "tag"};
+constexpr std::string_view kPatternNames[] = {"int", "string", "array", "sexp",
+                                              "tag"};
 
 std::string_view PatternName(PatternKind kind) {
   return kPatternNames[static_cast<std::size_t>(kind)];

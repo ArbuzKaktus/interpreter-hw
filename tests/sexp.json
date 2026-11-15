@@ -1,6 +1,30 @@
 {
-  "seq":{
-    "left":{"write":{"sexp":"Node","args":[{"const":1},{"sexp":"Leaf","args":[]}]}},
-    "right":{"write":{"binop":":","left":{"const":2},"right":{"sexp":"nil","args":[]}}}
+  "seq": {
+    "left": {
+      "write": {
+        "sexp": "Node",
+        "args": [
+          {
+            "const": 1
+          },
+          {
+            "sexp": "Leaf",
+            "args": []
+          }
+        ]
+      }
+    },
+    "right": {
+      "write": {
+        "binop": ":",
+        "left": {
+          "const": 2
+        },
+        "right": {
+          "sexp": "nil",
+          "args": []
+        }
+      }
+    }
   }
 }

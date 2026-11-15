@@ -1,9 +1,109 @@
 {
-  "seq":{"left":{"assn":{"dst":{"var":"a"},"src":{"array":[{"const":1},{"const":2}]}}},
-  "right":{"seq":{"left":{"set":{"dst":{"var":"a"},"idx":{"const":0},"value":{"binop":"+","left":{"elem":{"var":"a"},"index":{"const":0}},"right":{"const":4}}}},
-  "right":{"seq":{"left":{"assn":{"dst":{"var":"s"},"src":{"string":"abc"}}},
-  "right":{"seq":{"left":{"write":{"elem":{"var":"a"},"index":{"const":0}}},
-  "right":{"seq":{"left":{"write":{"length":{"var":"a"}}},
-  "right":{"seq":{"left":{"write":{"elem":{"var":"s"},"index":{"const":1}}},
-  "right":{"write":{"length":{"var":"s"}}}}}}}}}}}}}}
+  "seq": {
+    "left": {
+      "assn": {
+        "dst": {
+          "var": "a"
+        },
+        "src": {
+          "array": [
+            {
+              "const": 1
+            },
+            {
+              "const": 2
+            }
+          ]
+        }
+      }
+    },
+    "right": {
+      "seq": {
+        "left": {
+          "set": {
+            "dst": {
+              "var": "a"
+            },
+            "idx": {
+              "const": 0
+            },
+            "value": {
+              "binop": "+",
+              "left": {
+                "elem": {
+                  "var": "a"
+                },
+                "index": {
+                  "const": 0
+                }
+              },
+              "right": {
+                "const": 4
+              }
+            }
+          }
+        },
+        "right": {
+          "seq": {
+            "left": {
+              "assn": {
+                "dst": {
+                  "var": "s"
+                },
+                "src": {
+                  "string": "abc"
+                }
+              }
+            },
+            "right": {
+              "seq": {
+                "left": {
+                  "write": {
+                    "elem": {
+                      "var": "a"
+                    },
+                    "index": {
+                      "const": 0
+                    }
+                  }
+                },
+                "right": {
+                  "seq": {
+                    "left": {
+                      "write": {
+                        "length": {
+                          "var": "a"
+                        }
+                      }
+                    },
+                    "right": {
+                      "seq": {
+                        "left": {
+                          "write": {
+                            "elem": {
+                              "var": "s"
+                            },
+                            "index": {
+                              "const": 1
+                            }
+                          }
+                        },
+                        "right": {
+                          "write": {
+                            "length": {
+                              "var": "s"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

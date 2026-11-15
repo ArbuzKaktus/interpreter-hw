@@ -1,7 +1,69 @@
 [
-  {"CONST":1}, {"SEXP":["Leaf",0]}, {"SEXP":["Node",2]}, "WRITE",
-  {"CONST":1}, {"CONST":2}, {"SEXP":["nil",0]},
-  {"SEXP":["cons",2]}, {"SEXP":["cons",2]}, "WRITE",
-  {"CONST":1}, {"SEXP":["Node",1]}, {"ST":"a"},
-  {"LD":"a"}, {"CONST":0}, {"CONST":2}, "SET", {"LD":"a"}, "WRITE"
+  {
+    "CONST": 1
+  },
+  {
+    "SEXP": [
+      "Leaf",
+      0
+    ]
+  },
+  {
+    "SEXP": [
+      "Node",
+      2
+    ]
+  },
+  "WRITE",
+  {
+    "CONST": 1
+  },
+  {
+    "CONST": 2
+  },
+  {
+    "SEXP": [
+      "nil",
+      0
+    ]
+  },
+  {
+    "SEXP": [
+      "cons",
+      2
+    ]
+  },
+  {
+    "SEXP": [
+      "cons",
+      2
+    ]
+  },
+  "WRITE",
+  {
+    "CONST": 1
+  },
+  {
+    "SEXP": [
+      "Node",
+      1
+    ]
+  },
+  {
+    "ST": "a"
+  },
+  {
+    "LD": "a"
+  },
+  {
+    "CONST": 0
+  },
+  {
+    "CONST": 2
+  },
+  "SET",
+  {
+    "LD": "a"
+  },
+  "WRITE"
 ]

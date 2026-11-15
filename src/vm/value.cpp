@@ -12,8 +12,8 @@ namespace {
 std::size_t CheckedIndex(std::int64_t index, std::size_t size) {
   if (index < 0 || static_cast<std::uint64_t>(index) >= size) {
     throw std::runtime_error("index " + std::to_string(index) +
-                             " is out of bounds [0, " +
-                             std::to_string(size) + ")");
+                             " is out of bounds [0, " + std::to_string(size) +
+                             ")");
   }
   return static_cast<std::size_t>(index);
 }
@@ -38,14 +38,16 @@ Reference Heap::Allocate(Object object) {
 
 std::int64_t Heap::Length(const Value& value) const {
   const auto& object = objects_.at(GetReference(value).index);
-  return std::visit([](const auto& elements) {
-    using T = std::decay_t<decltype(elements)>;
-    if constexpr (std::is_same_v<T, Sexp>) {
-      return static_cast<std::int64_t>(elements.fields.size());
-    } else {
-      return static_cast<std::int64_t>(elements.size());
-    }
-  }, object);
+  return std::visit(
+      [](const auto& elements) {
+        using T = std::decay_t<decltype(elements)>;
+        if constexpr (std::is_same_v<T, Sexp>) {
+          return static_cast<std::int64_t>(elements.fields.size());
+        } else {
+          return static_cast<std::int64_t>(elements.size());
+        }
+      },
+      object);
 }
 
 Value Heap::Elem(const Value& value, std::int64_t index) const {
@@ -135,7 +137,8 @@ void Heap::WriteList(const Sexp& root, std::ostream& output,
     Write(node->fields[0], output, active);
     const auto* tail = std::get_if<Reference>(&node->fields[1]);
     if (!tail) throw std::runtime_error("invalid list tail");
-    if (active[tail->index]) throw std::runtime_error("cannot write a cyclic value");
+    if (active[tail->index])
+      throw std::runtime_error("cannot write a cyclic value");
     active[tail->index] = true;
     activated.push_back(tail->index);
     node = std::get_if<Sexp>(&objects_.at(tail->index));

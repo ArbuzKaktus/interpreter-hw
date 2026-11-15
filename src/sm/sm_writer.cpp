@@ -20,7 +20,8 @@ class Writer {
   void operator()(const ir::Push& op) const {
     if (op.value < std::numeric_limits<std::int32_t>::min() ||
         op.value > std::numeric_limits<std::int32_t>::max()) {
-      throw std::runtime_error("SM constant is outside the signed 32-bit range");
+      throw std::runtime_error(
+          "SM constant is outside the signed 32-bit range");
     }
     result_.push_back({{"CONST", op.value}});
   }

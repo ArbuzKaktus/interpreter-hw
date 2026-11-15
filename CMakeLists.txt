@@ -53,6 +53,12 @@ add_interpreter_test(sm_playground_export sm/control_flow.json 7 "6\\n4\\n2\\n1\
 add_interpreter_test(sm_reads_in_order sm/read_operands.json "7,2" "5\\n")
 add_interpreter_test(sm_overflow_branch sm/overflow_branch.json "" "-2147483648\\n2147483647\\n-2147483648\\n")
 add_interpreter_test(ast_integer_range ast_integer_range.json "" "2147483648\\n")
+add_interpreter_test(sm_playground_operators_negative sm/playground_operators.json " -7 , 3 " "-4\\n-10\\n-21\\n-2\\n-1\\n0\\n1\\n1\\n1\\n0\\n0\\n1\\n1\\n")
+add_interpreter_test(sm_playground_operators_equal sm/playground_operators.json "3,3" "6\\n0\\n9\\n1\\n0\\n1\\n0\\n0\\n1\\n0\\n1\\n1\\n1\\n")
+add_interpreter_test(sm_playground_for_elif sm/playground_for_elif.json 6 "26\\n")
+add_interpreter_test(sm_playground_for_zero_iterations sm/playground_for_elif.json 0 "0\\n")
+add_interpreter_test(sm_playground_skip sm/empty.json "" "")
+add_interpreter_test(sm_accepts_int32_min sm/read.json "-2147483648, 2147483647" "-2147483648\\n")
 
 function(add_interpreter_failure_test name ast input expected_error)
     add_test(
@@ -77,6 +83,11 @@ add_interpreter_failure_test(sm_missing_input sm/read_operands.json 7 "not enoug
 add_interpreter_failure_test(sm_discards_partial_output sm/partial_output.json "" "SM instruction 5: division by zero")
 add_interpreter_failure_test(sm_duplicate_key sm/duplicate_key.json "" "duplicate JSON key: CONST")
 add_interpreter_failure_test(sm_input_out_of_range sm/read.json 2147483648 "input value is outside the signed 32-bit range")
+add_interpreter_failure_test(sm_unused_input_out_of_range sm/read.json "7,2147483648" "input value is outside the signed 32-bit range")
+add_interpreter_failure_test(sm_trailing_input_comma sm/read.json "7," "empty value in --input")
+add_interpreter_failure_test(sm_input_leading_plus sm/read.json "+7" "invalid number in --input")
+add_interpreter_failure_test(sm_eager_logical_error sm/eager_logical_error.json "" "SM instruction 3: division by zero")
+add_interpreter_failure_test(sm_undefined_load sm/undefined_load.json "" "SM instruction 0: uninitialized variable: x")
 
 add_test(
     NAME dump_ir

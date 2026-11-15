@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -45,11 +46,29 @@ void RunSm(const SmProgram& program, const std::vector<std::int64_t>& input) {
   std::cout << output.str();
 }
 
-std::vector<std::int64_t> ParseInput(const std::string& text) {
+std::vector<std::int64_t> ParseInput(const std::string& text, bool sm) {
+  constexpr char kWhitespace[] = " \t\r\n";
+  if (sm && !text.empty()) {
+    const auto last = text.find_last_not_of(kWhitespace);
+    if (last == std::string::npos || text[last] == ',') {
+      throw std::runtime_error("empty value in --input");
+    }
+  }
   std::vector<std::int64_t> values;
   std::stringstream stream(text);
   std::string part;
   while (std::getline(stream, part, ',')) {
+    if (sm) {
+      const auto first = part.find_first_not_of(kWhitespace);
+      if (first == std::string::npos) {
+        throw std::runtime_error("empty value in --input");
+      }
+      const auto last = part.find_last_not_of(kWhitespace);
+      part = part.substr(first, last - first + 1);
+      if (part.front() == '+') {
+        throw std::runtime_error("invalid number in --input: " + part);
+      }
+    }
     if (part.empty()) {
       throw std::runtime_error("empty value in --input");
     }
@@ -57,6 +76,10 @@ std::vector<std::int64_t> ParseInput(const std::string& text) {
     const std::int64_t value = std::stoll(part, &parsed_characters);
     if (parsed_characters != part.size()) {
       throw std::runtime_error("invalid number in --input: " + part);
+    }
+    if (sm && (value < std::numeric_limits<std::int32_t>::min() ||
+               value > std::numeric_limits<std::int32_t>::max())) {
+      throw std::runtime_error("input value is outside the signed 32-bit range");
     }
     values.push_back(value);
   }
@@ -72,7 +95,7 @@ int main(int argc, char* argv[]) {
     std::string program_path;
     bool sm = false;
     bool dump_ir = false;
-    std::vector<std::int64_t> input;
+    std::string input_text;
     for (int index = 1; index < argc; ++index) {
       const std::string argument = argv[index];
       if (argument == "--help") {
@@ -88,7 +111,7 @@ int main(int argc, char* argv[]) {
         if (++index == argc) {
           throw std::runtime_error("--input requires values");
         }
-        input = ParseInput(argv[index]);
+        input_text = argv[index];
       } else if (program_path.empty()) {
         program_path = argument;
       } else {
@@ -106,7 +129,9 @@ int main(int argc, char* argv[]) {
       source = &file;
     }
     const auto json = ParseProgram(*source);
-    if (sm || json.is_array()) {
+    const bool is_sm = sm || json.is_array();
+    const auto input = ParseInput(input_text, is_sm);
+    if (is_sm) {
       const auto program = LoadSm(json);
       if (dump_ir) {
         ir::Dump(program.instructions, std::cout);

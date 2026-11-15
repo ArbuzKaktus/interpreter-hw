@@ -1,0 +1,16 @@
+[
+  "READ", {"ST":"x"}, "READ", {"ST":"y"},
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"+"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"-"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"*"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"/"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"%"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"=="}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"!="}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"<"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"<="}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":">"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":">="}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"&&"}, "WRITE",
+  {"LD":"x"}, {"LD":"y"}, {"BINOP":"!!"}, "WRITE"
+]

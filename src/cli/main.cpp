@@ -10,6 +10,7 @@
 
 #include "compiler/ast_compiler.h"
 #include "sm/sm_loader.h"
+#include "sm/sm_writer.h"
 #include "vm/vm.h"
 
 namespace {
@@ -95,16 +96,19 @@ int main(int argc, char* argv[]) {
     std::string program_path;
     bool sm = false;
     bool dump_ir = false;
+    bool emit_sm = false;
     std::string input_text;
     for (int index = 1; index < argc; ++index) {
       const std::string argument = argv[index];
       if (argument == "--help") {
         std::cout << "Usage: interpreter [program.json] [--sm] "
-                     "[--input 1,2,3] [--dump-ir]\n";
+                     "[--input 1,2,3] [--dump-ir | --emit-sm]\n";
         return ExitCodes::SUCCESS;
       }
       if (argument == "--dump-ir") {
         dump_ir = true;
+      } else if (argument == "--emit-sm") {
+        emit_sm = true;
       } else if (argument == "--sm") {
         sm = true;
       } else if (argument == "--input") {
@@ -130,6 +134,14 @@ int main(int argc, char* argv[]) {
     }
     const auto json = ParseProgram(*source);
     const bool is_sm = sm || json.is_array();
+    if (emit_sm) {
+      if (is_sm || dump_ir) {
+        throw std::runtime_error("--emit-sm requires AST input and no --dump-ir");
+      }
+      std::cout << WriteSm(CompileAst(json, AstTarget::kStackMachine)).dump(2)
+                << '\n';
+      return ExitCodes::SUCCESS;
+    }
     const auto input = ParseInput(input_text, is_sm);
     if (is_sm) {
       const auto program = LoadSm(json);

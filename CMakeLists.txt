@@ -27,12 +27,21 @@ target_compile_options(interpreter_ir PRIVATE -Wall -Wextra -Wpedantic)
 add_executable(interpreter
     src/cli/main.cpp
     src/compiler/ast_compiler.cpp
-    src/sm/sm_loader.cpp)
+    src/sm/sm_loader.cpp
+    src/sm/sm_writer.cpp)
 target_link_libraries(interpreter PRIVATE interpreter_ir)
 target_link_libraries(interpreter PRIVATE nlohmann_json::nlohmann_json)
 target_compile_options(interpreter PRIVATE -Wall -Wextra -Wpedantic)
 
 enable_testing()
+
+add_test(
+    NAME ast_to_sm_roundtrip
+    COMMAND ${CMAKE_COMMAND}
+        -DINTERPRETER=$<TARGET_FILE:interpreter>
+        -DAST=${CMAKE_CURRENT_SOURCE_DIR}/tests/sample.json
+        -DOUTPUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/compiled_sample.json
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/sm/compiler_roundtrip.cmake)
 
 function(add_interpreter_test name ast input expected)
     add_test(

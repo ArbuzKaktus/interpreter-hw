@@ -32,6 +32,8 @@ ir::BinaryOp ParseOperator(const std::string& symbol, bool compound) {
 
 class Compiler {
  public:
+  explicit Compiler(AstTarget target) : target_(target) {}
+
   ir::Program Compile(const json& ast) {
     CompileStatement(ast);
     return std::move(program_);
@@ -67,7 +69,8 @@ class Compiler {
       const auto op =
           ParseOperator(RequireString(expression.at("binop"), "binop"), false);
       CompileExpression(expression.at("left"));
-      if (op == ir::BinaryOp::kAnd || op == ir::BinaryOp::kOr) {
+      if (target_ == AstTarget::kInterpreter &&
+          (op == ir::BinaryOp::kAnd || op == ir::BinaryOp::kOr)) {
         const bool short_circuit_value = op == ir::BinaryOp::kOr;
         const auto branch = Emit(ir::Branch{0, short_circuit_value});
         CompileExpression(expression.at("right"));
@@ -115,10 +118,12 @@ class Compiler {
     const bool compound = body.contains("op");
     RequireFields(body, compound ? 3 : 2, "assn");
     const auto destination = RequireString(body.at("dst"), "dst");
-    if (compound) Emit(ir::Load{destination, true});
+    if (compound) Emit(ir::Load{destination,
+                                target_ == AstTarget::kInterpreter});
     CompileExpression(body.at("src"));
     if (compound) {
-      Emit(ir::Binary{ParseOperator(RequireString(body.at("op"), "op"), true)});
+      Emit(ir::Binary{ParseOperator(RequireString(body.at("op"), "op"),
+                                    target_ == AstTarget::kInterpreter)});
     }
     Emit(ir::Store{destination});
   }
@@ -146,6 +151,13 @@ class Compiler {
       CompileStatement(body.at("body"));
       CompileExpression(body.at("cond"));
       Emit(ir::Branch{start, true});
+    } else if (target_ == AstTarget::kStackMachine) {
+      const auto condition = Emit(ir::Jump{0});
+      const auto loop_body = program_.size();
+      CompileStatement(body.at("body"));
+      Patch<ir::Jump>(condition);
+      CompileExpression(body.at("cond"));
+      Emit(ir::Branch{loop_body, true});
     } else {
       CompileExpression(body.at("cond"));
       const auto exit = Emit(ir::Branch{0, false});
@@ -155,11 +167,12 @@ class Compiler {
     }
   }
 
+  AstTarget target_;
   ir::Program program_;
 };
 
 }  // namespace
 
-ir::Program CompileAst(const nlohmann::json& ast) {
-  return Compiler().Compile(ast);
+ir::Program CompileAst(const nlohmann::json& ast, AstTarget target) {
+  return Compiler(target).Compile(ast);
 }

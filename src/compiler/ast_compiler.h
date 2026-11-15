@@ -5,6 +5,9 @@
 
 #include "ir/ir.h"
 
-ir::Program CompileAst(const nlohmann::json& ast);
+enum class AstTarget { kInterpreter, kStackMachine };
+ir::Program CompileAst(
+    const nlohmann::json& ast,
+    AstTarget target = AstTarget::kInterpreter);
 
 #endif  // HW1_SRC_COMPILER_AST_COMPILER_H_

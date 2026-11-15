@@ -25,9 +25,9 @@ std::string RequireString(const json& value, const char* field) {
 ir::BinaryOp ParseOperator(const std::string& symbol, bool compound) {
   const auto op = ir::FindBinaryOp(symbol);
   if (op && (!compound || ir::IsArithmetic(*op))) return *op;
-  throw std::runtime_error(
-      (compound ? "invalid compound assignment operator: "
-                : "unknown binary operator: ") + symbol);
+  throw std::runtime_error((compound ? "invalid compound assignment operator: "
+                                     : "unknown binary operator: ") +
+                           symbol);
 }
 
 class Compiler {

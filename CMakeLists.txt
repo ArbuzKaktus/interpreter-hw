@@ -72,6 +72,9 @@ add_interpreter_test(sm_arrays_strings sm/arrays_strings.json "" "5\\n2\\n98\\n3
 add_interpreter_test(ast_arrays_strings arrays_strings.json "" "5\\n2\\n98\\n3\\n")
 add_interpreter_test(sm_string_alias sm/string_alias.json "" "90\\n90\\n3\\n")
 add_interpreter_test(ast_sexp sexp.json "" "Node (1, Leaf)\\n{2}\\n")
+add_interpreter_test(ast_patterns patterns.json "" "5\\n10\\n7\\n8\\n")
+add_interpreter_test(ast_structural_comparison structural_comparison.json "" "1\\n1\\n1\\n0\\n0\\n")
+add_interpreter_test(ast_pattern_fallback pattern_fallback.json "" "4\\n")
 add_interpreter_test(sm_sexp sm/sexp.json "" "Node (1, Leaf)\\n{1, 2}\\nNode (2)\\n")
 
 function(add_interpreter_failure_test name ast input expected_error)
@@ -91,6 +94,7 @@ add_interpreter_failure_test(missing_input missing_input.json "" "not enough inp
 add_interpreter_failure_test(malformed_ast malformed_ast.json "" "unknown statement type")
 add_interpreter_failure_test(invalid_unreachable_ast invalid_unreachable.json "" "unknown statement type")
 add_interpreter_failure_test(sm_unknown_label sm/unknown_label.json "" "unknown label: missing")
+add_interpreter_failure_test(ast_pattern_failure pattern_failure.json "" "match failure on 1")
 add_interpreter_failure_test(sm_invalid_constant sm/invalid_constant.json "" "CONST expects a signed 32-bit integer")
 add_interpreter_failure_test(sm_stack_underflow sm/stack_underflow.json "" "stack underflow")
 add_interpreter_failure_test(sm_missing_input sm/read_operands.json 7 "not enough input values for READ")

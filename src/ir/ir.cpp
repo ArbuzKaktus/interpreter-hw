@@ -72,6 +72,17 @@ class Printer {
   }
   void operator()(const Elem&) const { output_ << "elem"; }
   void operator()(const SetElem&) const { output_ << "set"; }
+  void operator()(const Scope&) const { output_ << "scope"; }
+  void operator()(const Enter&) const { output_ << "enter"; }
+  void operator()(const Leave&) const { output_ << "leave"; }
+  void operator()(const MatchFailure&) const { output_ << "match_failure"; }
+  void operator()(const PatternTest& op) const {
+    constexpr const char* kKinds[] = {"int", "string", "array", "sexp", "tag"};
+    output_ << "patt " << kKinds[static_cast<std::size_t>(op.kind)];
+    if (op.kind == PatternKind::kTag) {
+      output_ << ' ' << std::quoted(op.tag) << ' ' << op.arity;
+    }
+  }
 
  private:
   std::ostream& output_;
@@ -91,6 +102,9 @@ std::optional<BinaryOp> FindBinaryOp(std::string_view symbol) {
 }
 
 bool IsArithmetic(BinaryOp op) { return Describe(op).arithmetic; }
+bool IsComparison(BinaryOp op) {
+  return !IsArithmetic(op) && op != BinaryOp::kAnd && op != BinaryOp::kOr;
+}
 
 void Dump(const Program& program, std::ostream& output) {
   for (std::size_t pc = 0; pc < program.size(); ++pc) {

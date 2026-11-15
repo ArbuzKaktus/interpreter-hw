@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace {
 
@@ -147,9 +148,124 @@ class Compiler {
       CompileIf(body);
     } else if (tag == "while" || tag == "do") {
       CompileLoop(body, tag == "do");
+    } else if (tag == "switch") {
+      if (target_ == AstTarget::kStackMachine) {
+        throw std::runtime_error("SM output does not yet support patterns");
+      }
+      CompileSwitch(body);
     } else {
       throw std::runtime_error("unknown statement type");
     }
+  }
+
+  using Path = std::vector<std::size_t>;
+  using Bindings = std::vector<std::pair<std::string, Path>>;
+
+  void LoadPatternValue(const Path& path) {
+    Emit(ir::Load{"_"});
+    for (const auto index : path) {
+      Emit(ir::Push{static_cast<std::int64_t>(index)});
+      Emit(ir::Elem{});
+    }
+  }
+
+  void CompilePattern(const json& pattern, Path& path,
+                      std::vector<std::size_t>& failures, Bindings& bindings) {
+    using Kind = ir::PatternKind;
+    const auto test = [&](ir::PatternTest predicate) {
+      LoadPatternValue(path);
+      Emit(std::move(predicate));
+      failures.push_back(Emit(ir::Branch{0, false}));
+    };
+    const auto equality = [&] {
+      Emit(ir::Binary{ir::BinaryOp::kEq});
+      failures.push_back(Emit(ir::Branch{0, false}));
+    };
+
+    if (pattern.is_string()) {
+      const auto name = pattern.get<std::string>();
+      if (name == "#int") test({Kind::kInt, {}});
+      else if (name == "#string") test({Kind::kString, {}});
+      else if (name == "#array") test({Kind::kArray, {}});
+      else if (name == "#sexp") test({Kind::kSexp, {}});
+      else if (name != "_") {
+        LoadPatternValue(path);
+        Emit(ir::String{name});
+        equality();
+      }
+    } else if (pattern.is_number_integer()) {
+      LoadPatternValue(path);
+      CompileExpression(json{{"const", pattern}});
+      equality();
+    } else if (pattern.contains("wildcard")) {
+      RequireFields(pattern, 1, "wildcard");
+    } else if (pattern.contains("bind")) {
+      RequireFields(pattern, 1, "bind pattern");
+      const auto& bind = pattern.at("bind");
+      RequireFields(bind, 2, "binding");
+      CompilePattern(bind.at("pattern"), path, failures, bindings);
+      const auto name = RequireString(bind.at("name"), "name");
+      if (name.empty() || name == "_") {
+        throw std::runtime_error("invalid pattern binding name");
+      }
+      bindings.emplace_back(name, path);
+    } else if (pattern.contains("array") || pattern.contains("sexp")) {
+      const bool sexp = pattern.contains("sexp");
+      RequireFields(pattern, sexp ? 2 : 1, "composite pattern");
+      const auto& children = pattern.at(sexp ? "args" : "array");
+      if (!children.is_array()) throw std::runtime_error("invalid pattern args");
+      if (sexp) {
+        test({Kind::kTag, RequireString(pattern.at("sexp"), "sexp"),
+              children.size()});
+      } else {
+        test({Kind::kArray, {}});
+        LoadPatternValue(path);
+        Emit(ir::Length{});
+        Emit(ir::Push{static_cast<std::int64_t>(children.size())});
+        equality();
+      }
+      for (std::size_t i = 0; i < children.size(); ++i) {
+        path.push_back(i);
+        CompilePattern(children[i], path, failures, bindings);
+        path.pop_back();
+      }
+    } else {
+      throw std::runtime_error("unknown pattern type");
+    }
+  }
+
+  void CompileSwitch(const json& body) {
+    RequireFields(body, 2, "switch");
+    const auto& branches = body.at("branches");
+    if (!branches.is_array() || branches.empty()) {
+      throw std::runtime_error("switch expects at least one branch");
+    }
+    CompileExpression(body.at("scrutinee"));
+    Emit(ir::Scope{});
+    Emit(ir::Store{"_"});
+    Emit(ir::Enter{});
+    std::vector<std::size_t> exits;
+    for (const auto& branch : branches) {
+      RequireFields(branch, 2, "pattern branch");
+      std::vector<std::size_t> failures;
+      Bindings bindings;
+      Path path;
+      CompilePattern(branch.at("pattern"), path, failures, bindings);
+      Emit(ir::Scope{});
+      for (const auto& [name, binding_path] : bindings) {
+        LoadPatternValue(binding_path);
+        Emit(ir::Store{name});
+      }
+      Emit(ir::Enter{});
+      CompileStatement(branch.at("branch"));
+      Emit(ir::Leave{});
+      Emit(ir::Leave{});
+      exits.push_back(Emit(ir::Jump{0}));
+      for (const auto failure : failures) Patch<ir::Branch>(failure);
+    }
+    Emit(ir::Load{"_"});
+    Emit(ir::MatchFailure{});
+    for (const auto exit : exits) Patch<ir::Jump>(exit);
   }
 
   void CompileAssignment(const json& body) {

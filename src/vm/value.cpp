@@ -147,4 +147,57 @@ void Heap::WriteList(const Sexp& root, std::ostream& output,
   output << '}';
 }
 
+bool Heap::Matches(const Value& value, const ir::PatternTest& pattern) const {
+  using Kind = ir::PatternKind;
+  const auto* reference = std::get_if<Reference>(&value);
+  if (!reference) return pattern.kind == Kind::kInt;
+  const auto& object = objects_.at(reference->index);
+  switch (pattern.kind) {
+    case Kind::kInt: return false;
+    case Kind::kString: return std::holds_alternative<std::string>(object);
+    case Kind::kArray: return std::holds_alternative<Array>(object);
+    case Kind::kSexp: return std::holds_alternative<Sexp>(object);
+    case Kind::kTag: {
+      const auto* sexp = std::get_if<Sexp>(&object);
+      return sexp && sexp->tag == pattern.tag &&
+             sexp->fields.size() == pattern.arity;
+    }
+  }
+  return false;
+}
+
+std::optional<int> Heap::Compare(const Value& left, const Value& right) const {
+  Pairs visited;
+  return Compare(left, right, visited);
+}
+
+std::optional<int> Heap::Compare(const Value& left, const Value& right,
+                                 Pairs& visited) const {
+  if (left.index() != right.index()) return std::nullopt;
+  if (const auto* number = std::get_if<std::int64_t>(&left)) {
+    const auto other = std::get<std::int64_t>(right);
+    return *number < other ? -1 : *number > other ? 1 : 0;
+  }
+  const auto a = GetReference(left).index;
+  const auto b = GetReference(right).index;
+  const auto& x = objects_.at(a);
+  const auto& y = objects_.at(b);
+  if (x.index() != y.index()) return std::nullopt;
+  if (const auto* bytes = std::get_if<std::string>(&x)) {
+    return bytes->compare(std::get<std::string>(y));
+  }
+  if (a == b || !visited.emplace(a, b).second) return 0;
+  const auto* xs = std::get_if<Sexp>(&x);
+  const auto* ys = std::get_if<Sexp>(&y);
+  if (xs && xs->tag != ys->tag) return xs->tag.compare(ys->tag);
+  const auto& first = xs ? xs->fields : std::get<Array>(x);
+  const auto& second = ys ? ys->fields : std::get<Array>(y);
+  if (first.size() != second.size()) return first.size() < second.size() ? -1 : 1;
+  for (std::size_t i = 0; i < first.size(); ++i) {
+    const auto result = Compare(first[i], second[i], visited);
+    if (!result || *result != 0) return result;
+  }
+  return 0;
+}
+
 }  // namespace runtime

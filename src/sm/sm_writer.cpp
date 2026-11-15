@@ -72,8 +72,16 @@ class Writer {
   }
   void operator()(const ir::Elem&) const { result_.push_back("ELEM"); }
   void operator()(const ir::SetElem&) const { result_.push_back("SET"); }
+  void operator()(const ir::Scope&) const { RejectPattern(); }
+  void operator()(const ir::Enter&) const { RejectPattern(); }
+  void operator()(const ir::Leave&) const { RejectPattern(); }
+  void operator()(const ir::MatchFailure&) const { RejectPattern(); }
+  void operator()(const ir::PatternTest&) const { RejectPattern(); }
 
  private:
+  [[noreturn]] static void RejectPattern() {
+    throw std::runtime_error("SM output does not yet support patterns");
+  }
   json& result_;
 };
 

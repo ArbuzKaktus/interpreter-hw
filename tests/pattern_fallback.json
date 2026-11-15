@@ -1,0 +1,1 @@
+{"switch":{"scrutinee":{"const":1},"branches":[{"pattern":{"array":[{"bind":{"name":"x","pattern":{"wildcard":[]}}}]},"branch":{"write":{"const":0}}},{"pattern":"#int","branch":{"write":{"const":4}}}]}}

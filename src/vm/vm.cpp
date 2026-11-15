@@ -2,7 +2,9 @@
 
 #include <limits>
 #include <map>
+#include <optional>
 #include <ostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -95,6 +97,13 @@ class Machine {
   }
 
   void Step(const ir::Load& op) {
+    for (auto scope = scopes_.rbegin(); scope != scopes_.rend(); ++scope) {
+      const auto found = scope->find(op.name);
+      if (found != scope->end()) {
+        stack_.push_back(found->second);
+        return;
+      }
+    }
     const auto found = variables_.find(op.name);
     if (found != variables_.end()) {
       stack_.push_back(found->second);
@@ -105,7 +114,22 @@ class Machine {
     }
   }
 
-  void Step(const ir::Store& op) { variables_[op.name] = Pop(); }
+  void Store(const std::string& name, runtime::Value value) {
+    if (pending_scope_) {
+      (*pending_scope_)[name] = value;
+      return;
+    }
+    for (auto scope = scopes_.rbegin(); scope != scopes_.rend(); ++scope) {
+      const auto found = scope->find(name);
+      if (found != scope->end()) {
+        found->second = value;
+        return;
+      }
+    }
+    variables_[name] = value;
+  }
+
+  void Step(const ir::Store& op) { Store(op.name, Pop()); }
 
   std::int64_t ReadInput(const std::string& operation) {
     if (input_position_ == input_.size()) {
@@ -121,7 +145,7 @@ class Machine {
   }
 
   void Step(const ir::Read& op) {
-    variables_[op.name] = ReadInput("read(" + op.name + ")");
+    Store(op.name, ReadInput("read(" + op.name + ")"));
   }
 
   void Step(const ir::ReadStack&) { stack_.push_back(ReadInput("READ")); }
@@ -132,9 +156,20 @@ class Machine {
   }
 
   void Step(const ir::Binary& op) {
-    const auto right = runtime::Integer(Pop());
-    const auto left = runtime::Integer(Pop());
-    stack_.push_back(Apply(op.op, left, right, mode_));
+    const auto right = Pop();
+    const auto left = Pop();
+    if (ir::IsComparison(op.op)) {
+      const auto order = heap_.Compare(left, right);
+      if (!order && op.op != ir::BinaryOp::kEq) {
+        throw std::runtime_error("incompatible operands for " +
+                                 std::string(ir::Symbol(op.op)));
+      }
+      const auto result = order ? Apply(op.op, *order, 0, mode_) : 0;
+      stack_.push_back(result);
+      return;
+    }
+    stack_.push_back(Apply(op.op, runtime::Integer(left),
+                           runtime::Integer(right), mode_));
   }
 
   void Step(const ir::ToBool&) {
@@ -180,11 +215,40 @@ class Machine {
     heap_.Set(Pop(), index, element);
   }
 
+  void Step(const ir::Scope&) {
+    if (pending_scope_) throw std::runtime_error("scope already pending");
+    pending_scope_.emplace();
+  }
+
+  void Step(const ir::Enter&) {
+    if (!pending_scope_) throw std::runtime_error("no pending scope");
+    scopes_.push_back(std::move(*pending_scope_));
+    pending_scope_.reset();
+  }
+
+  void Step(const ir::Leave&) {
+    if (scopes_.empty()) throw std::runtime_error("no active scope");
+    scopes_.pop_back();
+  }
+
+  void Step(const ir::PatternTest& op) {
+    stack_.push_back(static_cast<std::int64_t>(heap_.Matches(Pop(), op)));
+  }
+
+  void Step(const ir::MatchFailure&) {
+    std::ostringstream text;
+    heap_.Write(Pop(), text);
+    throw std::runtime_error("match failure on " + text.str());
+  }
+
   const std::vector<std::int64_t>& input_;
   std::ostream& output_;
   IntegerMode mode_;
   runtime::Heap heap_;
-  std::map<std::string, runtime::Value> variables_;
+  using Environment = std::map<std::string, runtime::Value>;
+  Environment variables_;
+  std::vector<Environment> scopes_;
+  std::optional<Environment> pending_scope_;
   std::vector<runtime::Value> stack_;
   std::size_t pc_ = 0;
   std::size_t input_position_ = 0;

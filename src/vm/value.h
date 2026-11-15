@@ -4,9 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <iosfwd>
+#include <optional>
+#include <set>
 #include <string>
 #include <variant>
 #include <vector>
+
+#include "ir/ir.h"
 
 namespace runtime {
 
@@ -29,6 +33,8 @@ class Heap {
   Value Elem(const Value& value, std::int64_t index) const;
   void Set(const Value& value, std::int64_t index, Value element);
   void Write(const Value& value, std::ostream& output) const;
+  bool Matches(const Value& value, const ir::PatternTest& pattern) const;
+  std::optional<int> Compare(const Value& left, const Value& right) const;
 
  private:
   static Reference GetReference(const Value& value);
@@ -36,6 +42,9 @@ class Heap {
              std::vector<bool>& active) const;
   void WriteList(const Sexp& root, std::ostream& output,
                  std::vector<bool>& active) const;
+  using Pairs = std::set<std::pair<std::size_t, std::size_t>>;
+  std::optional<int> Compare(const Value& left, const Value& right,
+                             Pairs& visited) const;
 
   std::vector<Object> objects_;
 };

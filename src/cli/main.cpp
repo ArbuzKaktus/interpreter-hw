@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -11,6 +12,38 @@
 #include "vm/vm.h"
 
 namespace {
+
+nlohmann::json ParseProgram(std::istream& source) {
+  using Event = nlohmann::json::parse_event_t;
+  std::vector<std::set<std::string>> object_keys;
+  return nlohmann::json::parse(
+      source, [&object_keys](int, Event event, nlohmann::json& value) {
+        if (event == Event::object_start) {
+          object_keys.emplace_back();
+        } else if (event == Event::object_end) {
+          object_keys.pop_back();
+        } else if (event == Event::key) {
+          const auto& key = value.get_ref<const std::string&>();
+          if (!object_keys.back().insert(key).second) {
+            throw std::runtime_error("duplicate JSON key: " + key);
+          }
+        }
+        return true;
+      });
+}
+
+void RunSm(const SmProgram& program, const std::vector<std::int64_t>& input) {
+  std::ostringstream output;
+  try {
+    Execute(program.instructions, input, output, IntegerMode::kWrapping32);
+  } catch (const ExecutionError& error) {
+    throw std::runtime_error(
+        "SM instruction " +
+        std::to_string(program.source_indices.at(error.pc())) + ": " +
+        error.what());
+  }
+  std::cout << output.str();
+}
 
 std::vector<std::int64_t> ParseInput(const std::string& text) {
   std::vector<std::int64_t> values;
@@ -72,13 +105,21 @@ int main(int argc, char* argv[]) {
       }
       source = &file;
     }
-    const auto json = nlohmann::json::parse(*source);
-    const ir::Program program =
-        (sm || json.is_array()) ? LoadSm(json) : CompileAst(json);
-    if (dump_ir) {
-      ir::Dump(program, std::cout);
+    const auto json = ParseProgram(*source);
+    if (sm || json.is_array()) {
+      const auto program = LoadSm(json);
+      if (dump_ir) {
+        ir::Dump(program.instructions, std::cout);
+      } else {
+        RunSm(program, input);
+      }
     } else {
-      Execute(program, input, std::cout);
+      const auto program = CompileAst(json);
+      if (dump_ir) {
+        ir::Dump(program, std::cout);
+      } else {
+        Execute(program, input, std::cout);
+      }
     }
   } catch (const std::exception& error) {
     std::cerr << "Error: " << error.what() << '\n';

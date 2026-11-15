@@ -1,9 +1,11 @@
 #include "sm/sm_loader.h"
 
+#include <cstdint>
 #include <limits>
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <nlohmann/json.hpp>
@@ -26,14 +28,8 @@ std::string RequireName(const json& operand) {
 }
 
 ir::BinaryOp DecodeBinary(const json& operand) {
-  using Op = ir::BinaryOp;
-  constexpr Op kOperators[] = {Op::kAdd, Op::kSub, Op::kMul, Op::kDiv, Op::kRem,
-                               Op::kEq,  Op::kNe,  Op::kLt,  Op::kLe,  Op::kGt,
-                               Op::kGe,  Op::kAnd, Op::kOr};
   const auto symbol = RequireName(operand);
-  for (const auto op : kOperators) {
-    if (ir::Symbol(op) == symbol) return op;
-  }
+  if (const auto op = ir::FindBinaryOp(symbol)) return *op;
   throw std::runtime_error("unknown binary operator: " + symbol);
 }
 
@@ -41,10 +37,15 @@ std::int64_t DecodeConstant(const json& operand) {
   if (!operand.is_number_integer() ||
       (operand.is_number_unsigned() &&
        operand.get<std::uint64_t>() >
-           std::numeric_limits<std::int64_t>::max())) {
-    throw std::runtime_error("CONST expects a signed 64-bit integer");
+           std::numeric_limits<std::int32_t>::max())) {
+    throw std::runtime_error("CONST expects a signed 32-bit integer");
   }
-  return operand.get<std::int64_t>();
+  const auto value = operand.get<std::int64_t>();
+  if (value < std::numeric_limits<std::int32_t>::min() ||
+      value > std::numeric_limits<std::int32_t>::max()) {
+    throw std::runtime_error("CONST expects a signed 32-bit integer");
+  }
+  return value;
 }
 
 std::runtime_error ErrorAt(std::size_t index, const std::string& message) {
@@ -54,22 +55,28 @@ std::runtime_error ErrorAt(std::size_t index, const std::string& message) {
 
 }  // namespace
 
-ir::Program LoadSm(const nlohmann::json& code) {
+SmProgram LoadSm(const nlohmann::json& code) {
   if (!code.is_array()) {
     throw std::runtime_error("SM program must be a JSON array");
   }
-  ir::Program program;
+  SmProgram result;
+  auto& program = result.instructions;
+  const auto emit = [&result](std::size_t index,
+                              ir::Instruction instruction) {
+    result.instructions.push_back(std::move(instruction));
+    result.source_indices.push_back(index);
+  };
   std::map<std::string, std::size_t> labels;
   std::vector<Fixup> fixups;
   for (std::size_t index = 0; index < code.size(); ++index) {
     const auto& instruction = code[index];
     try {
       if (instruction == "READ") {
-        program.emplace_back(ir::ReadStack{});
+        emit(index, ir::ReadStack{});
         continue;
       }
       if (instruction == "WRITE") {
-        program.emplace_back(ir::Write{});
+        emit(index, ir::Write{});
         continue;
       }
       if (!instruction.is_object() || instruction.size() != 1) {
@@ -80,24 +87,25 @@ ir::Program LoadSm(const nlohmann::json& code) {
       const auto& opcode = item.key();
       const auto& operand = item.value();
       if (opcode == "CONST") {
-        program.emplace_back(ir::Push{DecodeConstant(operand)});
+        emit(index, ir::Push{DecodeConstant(operand)});
       } else if (opcode == "LD") {
-        program.emplace_back(ir::Load{RequireName(operand)});
+        emit(index, ir::Load{RequireName(operand)});
       } else if (opcode == "ST") {
-        program.emplace_back(ir::Store{RequireName(operand)});
+        emit(index, ir::Store{RequireName(operand)});
       } else if (opcode == "BINOP") {
-        program.emplace_back(ir::Binary{DecodeBinary(operand)});
+        emit(index, ir::Binary{DecodeBinary(operand)});
       } else if (opcode == "LABEL") {
         const auto label = RequireName(operand);
         if (!labels.emplace(label, program.size()).second) {
           throw std::runtime_error("duplicate label: " + label);
         }
+        continue;
       } else if (opcode == "JMP" || opcode == "JZ" || opcode == "JNZ") {
         fixups.push_back({program.size(), index, RequireName(operand)});
         if (opcode == "JMP") {
-          program.emplace_back(ir::Jump{0});
+          emit(index, ir::Jump{0});
         } else {
-          program.emplace_back(ir::Branch{0, opcode == "JNZ"});
+          emit(index, ir::Branch{0, opcode == "JNZ"});
         }
       } else {
         throw std::runtime_error("unsupported opcode: " + opcode);
@@ -119,5 +127,5 @@ ir::Program LoadSm(const nlohmann::json& code) {
       std::get<ir::Branch>(instruction).target = target->second;
     }
   }
-  return program;
+  return result;
 }
